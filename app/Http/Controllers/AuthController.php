@@ -75,6 +75,7 @@ class AuthController extends Controller
             $storedUser = $responseData['data'];
             
             session([
+                'id' => $storedUser['id'],
                 'email' => $storedUser['email'],
                 'name' => $storedUser['name'],
                 'token' => $storedUser['token']

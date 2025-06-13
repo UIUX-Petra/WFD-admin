@@ -31,7 +31,7 @@ class ModerationController extends Controller
             'type' => $activeType,
             'page' => $page,
             'search' => $search,
-            'per_page' => 10, // Atau sesuai kebutuhan
+            'per_page' => 5, // Atau sesuai kebutuhan
         ];
 
         // LOG: Mencatat detail panggilan API yang akan dilakukan
@@ -53,7 +53,7 @@ class ModerationController extends Controller
             ]);
             
             // Kembali ke view dengan data kosong dan pesan error
-            $reports = new LengthAwarePaginator([], 0, 10);
+            $reports = new LengthAwarePaginator([], 0, 5);
             return view('moderation.contents', ['reports' => $reports, 'type' => $activeType])
                     ->with('error', 'Failed to fetch reports from the server.');
         }

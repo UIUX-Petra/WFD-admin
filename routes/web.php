@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ModerationController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -16,9 +17,12 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.log
 Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
    Route::get('/dashboard', [MainController::class, 'dashboard'])->name('dashboard');
    Route::get('/moderation/reports', [ModerationController::class, 'index'])->name('moderation.reports');
+   Route::get('/users/index', [UserController::class, 'getAllUsers'])->name('users.index');
+   Route::post('/users/{userId}/block', [UserController::class, 'blockUser'])->name('users.block');
+   Route::post('/users/{userId}/unblock', [UserController::class, 'unblockUser'])->name('users.unblock');
 });
 
-Route::get('/admin/users/index', [MainController::class, 'userRegistration'])->name('admin.users.index');
+// Route::get('/admin/users/index', [MainController::class, 'userRegistration'])->name('admin.users.index');
 Route::get('/admin/users/activity', [MainController::class, 'userActivity'])->name('admin.users.activity');
 Route::get('/admin/moderation/dashboard', [MainController::class, 'moderationDashboard'])->name('admin.moderation.dashboard');
 Route::get('/admin/moderation/questions', [MainController::class, 'moderationQuestions'])->name('admin.moderation.questions');
