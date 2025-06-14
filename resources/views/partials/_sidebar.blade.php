@@ -82,7 +82,7 @@
         
         <div>
             <h3 class="px-4 mt-4 text-xs uppercase text-gray-400 font-semibold tracking-wider">Platform</h3>
-             <a href="{{ route('admin.platform.announcements') }}" class="flex items-center space-x-2 py-2.5 px-4 rounded transition duration-200 sidebar-link {{ request()->routeIs('admin.platform.announcements') ? 'active' : '' }}">
+             <a href="{{ route('admin.announcements.index') }}" class="flex items-center space-x-2 py-2.5 px-4 rounded transition duration-200 sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}">
                 <i class="ri-megaphone-line"></i>
                 <span>Announcement</span>
             </a>

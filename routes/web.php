@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ModerationController;
@@ -20,13 +21,11 @@ Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(functi
    Route::get('/users/index', [UserController::class, 'getAllUsers'])->name('users.index');
    Route::post('/users/{userId}/block', [UserController::class, 'blockUser'])->name('users.block');
    Route::post('/users/{userId}/unblock', [UserController::class, 'unblockUser'])->name('users.unblock');
+   Route::resource('announcements', AnnouncementController::class);
 });
 
-// Route::get('/admin/users/index', [MainController::class, 'userRegistration'])->name('admin.users.index');
 Route::get('/admin/users/activity', [MainController::class, 'userActivity'])->name('admin.users.activity');
 Route::get('/admin/moderation/dashboard', [MainController::class, 'moderationDashboard'])->name('admin.moderation.dashboard');
-Route::get('/admin/moderation/questions', [MainController::class, 'moderationQuestions'])->name('admin.moderation.questions');
-Route::get('/admin/moderation/comments', [MainController::class, 'moderationComments'])->name('admin.moderation.comments');
 Route::get('/admin/manage/content', [MainController::class, 'manageContent'])->name('admin.content.manage');
 Route::get('/admin/subjects/index', [MainController::class, 'subjects'])->name('admin.subjects.index');
 Route::get('/admin/moderation/log', [MainController::class, 'moderationLog'])->name('admin.moderation.log');
