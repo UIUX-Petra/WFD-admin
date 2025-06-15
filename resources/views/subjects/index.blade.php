@@ -3,113 +3,423 @@
 @section('title', 'Manajemen Subjects')
 
 @section('content')
-<div x-data="{ showAddModal: false, showEditModal: false, subjectToEdit: null }">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-semibold text-gray-800">Subjects Management</h1>
-        <button @click="showAddModal = true" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow">
-            <i class="ri-add-line mr-1"></i> Add New Subjects
-        </button>
-    </div>
-
-    <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
-        <div class="mb-4">
-            <input type="text" placeholder="Cari subject..." class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <div x-data="subjectManager('{{ session('token') }}')" x-init="init()">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-semibold text-gray-800">Subjects Management</h1>
+            <button @click="openAddModal()"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow flex items-center">
+                <i class="ri-add-line mr-1"></i> Add New Subject
+            </button>
         </div>
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Questions Count</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @php
-                // $subjects sudah di-hardcode di route example
-                $subjects = $subjects ?? [
-                    (object)['id' => 1, 'name' => 'Web Frameworks and Development', 'question_count' => 152],
-                    (object)['id' => 2, 'name' => 'Artificial Intelligence and Machine Learning', 'question_count' => 88],
-                    (object)['id' => 3, 'name' => 'Data Mining', 'question_count' => 210],
-                ];
-                @endphp
-                @foreach ($subjects as $subject)
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $subject->id }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $subject->name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $subject->question_count }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        <button @click="subjectToEdit = {{ json_encode($subject) }}; showEditModal = true" class="text-blue-600 hover:text-blue-900" title="Edit Subject">
-                            <i class="ri-pencil-line text-lg"></i>
-                        </button>
-                        <button class="text-red-600 hover:text-red-900" title="Hapus Subject" onclick="confirm('Yakin ingin menghapus subject \'{{ $subject->name }}\'?')">
-                            <i class="ri-delete-bin-line text-lg"></i>
-                        </button>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
 
-    <div x-show="showAddModal" x-cloak
-         class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
-         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" @click.away="showAddModal = false">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Add New Subject</h3>
-                <button @click="showAddModal = false" class="text-gray-400 hover:text-gray-600"><i class="ri-close-fill text-2xl"></i></button>
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            {{-- Search --}}
+            <div class="mb-4">
+                <input type="text" x-model.debounce.500ms="search"
+                    placeholder="Cari berdasarkan nama, singkatan, atau deskripsi..."
+                    class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <form action="#" method="POST"> {{-- Ganti # dengan route action --}}
-                @csrf
-                <div class="mb-4">
-                    <label for="add_subject_name" class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
-                    <input type="text" id="add_subject_name" name="name" required
-                           class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+
+            {{-- spinner buat loading --}}
+            <div x-show="isLoading" class="flex justify-center items-center p-8">
+                <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                    </circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                <span class="ml-3 text-gray-600">Memuat data...</span>
+            </div>
+
+            {{-- tabel data --}}
+            <div class="overflow-x-auto" x-show="!isLoading">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Abbreviation</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                                Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Questions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template x-if="subjects.length === 0">
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">Tidak ada data subject
+                                    ditemukan.</td>
+                            </tr>
+                        </template>
+                        <template x-for="subject in subjects" :key="subject.id">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                                    x-text="subject.name"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="subject.abbreviation">
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500 hidden md:table-cell"
+                                    x-text="subject.description ? subject.description.substring(0, 50) + (subject.description.length > 50 ? '...' : '') : '-'">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                    x-text="subject.group_question_count"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button @click="openEditModal(subject)" class="text-blue-600 hover:text-blue-900"
+                                        title="Edit Subject">
+                                        <i class="ri-pencil-line text-lg"></i>
+                                    </button>
+                                    <button @click="deleteSubject(subject.id, subject.name)"
+                                        class="text-red-600 hover:text-red-900" title="Hapus Subject">
+                                        <i class="ri-delete-bin-line text-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div x-show="!isLoading && pagination.total > 0"
+                class="mt-4 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <div class="text-sm text-gray-700">
+                    Showing <span x-text="pagination.from || 0"></span> to <span x-text="pagination.to || 0"></span> of
+                    <span x-text="pagination.total || 0"></span> results
                 </div>
-                <div class="mb-4">
-                    <label for="add_subject_description" class="block text-sm font-medium text-gray-700 mb-1">Subject Description</label>
-                    <textarea id="add_subject_description" name="description" rows="3"
-                              class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+
+                <nav x-show="pagination.last_page > 1" class="inline-flex rounded-md shadow-sm -space-x-px"
+                    aria-label="Pagination">
+                    <button @click="fetchSubjects(pagination.current_page - 1)" :disabled="pagination.current_page <= 1"
+                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="sr-only">Previous</span>
+                        &lt;
+                    </button>
+
+                    <template x-for="page in Array.from({length: pagination.last_page}, (_, i) => i + 1)"
+                        :key="page">
+                        <button @click="fetchSubjects(page)"
+                            :class="{
+                                'z-10 bg-blue-50 border-blue-500 text-blue-600': page == pagination.current_page,
+                                'bg-white border-gray-300 text-gray-500 hover:bg-gray-50': page != pagination
+                                    .current_page
+                            }"
+                            class="relative inline-flex items-center px-4 py-2 border text-sm font-medium" x-text="page">
+                        </button>
+                    </template>
+
+                    <button @click="fetchSubjects(pagination.current_page + 1)"
+                        :disabled="pagination.current_page >= pagination.last_page"
+                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="sr-only">Next</span>
+                        &gt;
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        {{-- Add Subject --}}
+        <div x-show="showAddModal" x-cloak
+            class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+            x-transition>
+            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" @click.away="showAddModal = false">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Add New Subject</h3>
+                    <button @click="showAddModal = false" class="text-gray-400 hover:text-gray-600"><i
+                            class="ri-close-fill text-2xl"></i></button>
                 </div>
-                <div class="flex justify-end space-x-2">
-                    <button type="button" @click="showAddModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">Save Subject</button>
+                <form @submit.prevent="addSubject()">
+                    <div class="mb-4">
+                        <label for="add_name" class="block text-sm font-medium text-gray-700 mb-1">Subject Name <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="add_name" x-model="newSubject.name" required
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="add_abbreviation"
+                            class="block text-sm font-medium text-gray-700 mb-1">Abbreviation</label>
+                        <input type="text" id="add_abbreviation" x-model="newSubject.abbreviation"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="add_description"
+                            class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="add_description" x-model="newSubject.description" rows="3"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" @click="showAddModal = false"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md">Cancel</button>
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">Save
+                            Subject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- Edit Subject --}}
+        <div x-show="showEditModal" x-cloak
+            class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+            x-transition>
+            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" @click.away="showEditModal = false">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Edit Subject: <span
+                            x-text="editSubjectData.name"></span></h3>
+                    <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600"><i
+                            class="ri-close-fill text-2xl"></i></button>
                 </div>
-            </form>
+                <form @submit.prevent="updateSubject()">
+                    <input type="hidden" x-model="editSubjectData.id">
+                    <div class="mb-4">
+                        <label for="edit_name" class="block text-sm font-medium text-gray-700 mb-1">Subject Name <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="edit_name" x-model="editSubjectData.name" required
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="edit_abbreviation"
+                            class="block text-sm font-medium text-gray-700 mb-1">Abbreviation</label>
+                        <input type="text" id="edit_abbreviation" x-model="editSubjectData.abbreviation"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="edit_description"
+                            class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="edit_description" x-model="editSubjectData.description" rows="3"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" @click="showEditModal = false"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md">Cancel</button>
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">Update
+                            Subject</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div x-show="showEditModal && subjectToEdit" x-cloak
-         class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
-         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" @click.away="showEditModal = false; subjectToEdit = null">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Edit Subject: <span x-text="subjectToEdit?.name"></span></h3>
-                <button @click="showEditModal = false; subjectToEdit = null" class="text-gray-400 hover:text-gray-600"><i class="ri-close-fill text-2xl"></i></button>
-            </div>
-            <form action="#" method="POST" x-show="subjectToEdit"> {{-- Ganti # dengan route action, bind ID --}}
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="id" :value="subjectToEdit?.id">
-                <div class="mb-4">
-                    <label for="edit_subject_name" class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
-                    <input type="text" id="edit_subject_name" name="name" required :value="subjectToEdit?.name"
-                           class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="edit_subject_description" class="block text-sm font-medium text-gray-700 mb-1">Subject Description</label>
-                    <textarea id="edit_subject_description" name="description" rows="3" :value="subjectToEdit?.description"
-                              class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
-                </div>
-                <div class="flex justify-end space-x-2">
-                    <button type="button" @click="showEditModal = false; subjectToEdit = null" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md">Batal</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">Update Subject</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+    <script>
+        // nerima param token
+        function subjectManager(authToken) {
+            const apiBaseUrl = 'http://127.0.0.1:8001';
+
+            return {
+                // State
+                subjects: [],
+                pagination: {},
+                isLoading: true,
+                search: '',
+                showAddModal: false,
+                showEditModal: false,
+                newSubject: {
+                    name: '',
+                    abbreviation: '',
+                    description: ''
+                },
+                editSubjectData: {},
+                authToken: authToken, // simpan token dalam state
+
+                init() {
+                    this.fetchSubjects();
+                    this.$watch('search', () => {
+                        this.fetchSubjects(1);
+                    });
+                },
+
+                async fetchSubjects(page = 1) {
+                    // Jangan fetch jika halaman tidak valid
+                    if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) {
+                        return;
+                    }
+
+                    this.isLoading = true;
+                    try {
+                        const params = new URLSearchParams({
+                            page: page,
+                            per_page: 10,
+                            search: this.search,
+                        });
+
+                        const response = await fetch(`${apiBaseUrl}/api/admin/subjects?${params.toString()}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Authorization': `Bearer ${this.authToken}`
+                            }
+                        });
+
+                        if (response.status === 401) {
+                            this.showToast('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+                            return;
+                        }
+                        if (!response.ok) throw new Error('Failed to fetch subjects.');
+
+                        const result = await response.json();
+                        this.subjects = result.data.data;
+                        this.pagination = {
+                            current_page: result.data.current_page,
+                            last_page: result.data.last_page,
+                            from: result.data.from,
+                            to: result.data.to,
+                            total: result.data.total,
+                        };
+                    } catch (error) {
+                        console.error('Error fetching subjects:', error);
+                        this.showToast('error', 'Gagal memuat data subject.');
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                openAddModal() {
+                    this.newSubject = {
+                        name: '',
+                        abbreviation: '',
+                        description: ''
+                    };
+                    this.showAddModal = true;
+                },
+
+                async addSubject() {
+                    try {
+                        const response = await fetch(`${apiBaseUrl}/api/admin/subjects`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content'),
+                                'Authorization': `Bearer ${this.authToken}`
+                            },
+                            body: JSON.stringify(this.newSubject)
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) {
+                            if (response.status === 422) {
+                                const errors = Object.values(result.errors).flat().join('\n');
+                                this.showToast('error', errors);
+                            } else {
+                                throw new Error(result.message || 'Failed to add subject.');
+                            }
+                            return;
+                        }
+
+                        this.showToast('success', 'Subject berhasil ditambahkan!');
+                        this.showAddModal = false;
+                        this.fetchSubjects(this.pagination.current_page);
+
+                    } catch (error) {
+                        console.error('Error adding subject:', error);
+                        this.showToast('error', 'Gagal menambahkan subject.');
+                    }
+                },
+
+                openEditModal(subject) {
+                    this.editSubjectData = {
+                        ...subject
+                    };
+                    this.showEditModal = true;
+                },
+
+                async updateSubject() {
+                    const id = this.editSubjectData.id;
+                    try {
+                        const response = await fetch(`${apiBaseUrl}/api/admin/subjects/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content'),
+                                'Authorization': `Bearer ${this.authToken}`
+                            },
+                            body: JSON.stringify(this.editSubjectData)
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) {
+                            if (response.status === 422) {
+                                const errors = Object.values(result.errors).flat().join('\n');
+                                this.showToast('error', errors);
+                            } else {
+                                throw new Error(result.message || 'Failed to update subject.');
+                            }
+                            return;
+                        }
+
+                        this.showToast('success', 'Subject berhasil diperbarui!');
+                        this.showEditModal = false;
+                        this.fetchSubjects(this.pagination.current_page);
+
+                    } catch (error) {
+                        console.error('Error updating subject:', error);
+                        this.showToast('error', 'Gagal memperbarui subject.');
+                    }
+                },
+
+                deleteSubject(id, name) {
+                    Swal.fire({
+                        title: 'Anda yakin?',
+                        text: `Anda akan menghapus subject "${name}". Tindakan ini tidak dapat dibatalkan!`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const response = await fetch(`${apiBaseUrl}/api/admin/subjects/${id}`, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').getAttribute('content'),
+                                        'Authorization': `Bearer ${this.authToken}`
+                                    }
+                                });
+
+                                if (!response.ok) throw new Error('Failed to delete subject.');
+
+                                this.showToast('success', `Subject "${name}" berhasil dihapus.`);
+                                this.fetchSubjects(this.pagination.current_page);
+
+                            } catch (error) {
+                                console.error('Error deleting subject:', error);
+                                this.showToast('error', 'Gagal menghapus subject.');
+                            }
+                        }
+                    })
+                },
+
+                showToast(icon, title) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    });
+
+                    Toast.fire({
+                        icon,
+                        title
+                    });
+                }
+            }
+        }
+    </script>
 @endsection

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MainController;
@@ -22,6 +23,7 @@ Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(functi
    Route::post('/users/{userId}/block', [UserController::class, 'blockUser'])->name('users.block');
    Route::post('/users/{userId}/unblock', [UserController::class, 'unblockUser'])->name('users.unblock');
    Route::resource('announcements', AnnouncementController::class);
+   Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
 });
 
 Route::get('/admin/users/activity', [MainController::class, 'userActivity'])->name('admin.users.activity');
