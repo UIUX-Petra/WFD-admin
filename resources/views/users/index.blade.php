@@ -46,7 +46,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse ($users as $user)
-                    @php($user = (object) $user) 
+                    @php($user = (object) $user)
                     <tr class="align-top" id="user-row-{{ $user->id }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->id }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -111,114 +111,135 @@
 @endsection
 
 @push('scripts')
-<script>
-    async function callApi(endpoint, method = 'POST', body = null) {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        const headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        };
+    <script>
+        // Ambil URL API dan Token dari variabel yang dikirim controller
+        const API_URL = '{{ $apiUrl }}';
+        const API_TOKEN = '{{ $apiToken }}';
 
-        const options = {
-            method: method.toUpperCase(),
-            headers: headers
-        };
+        /**
+         * Fungsi generik untuk memanggil API secara langsung.
+         * Menggunakan Bearer Token untuk otentikasi.
+         */
+        async function callApi(endpoint, method = 'POST', body = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${API_TOKEN}` // Otentikasi langsung ke API
+            };
 
-        if (body) {
-            options.body = JSON.stringify(body);
+            const options = {
+                method: method.toUpperCase(),
+                headers: headers
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(`${API_URL}${endpoint}`, options); // Gunakan URL API lengkap
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                const errorMessage = responseData.message || `An error occurred: ${response.statusText}`;
+                throw new Error(errorMessage);
+            }
+            return responseData;
         }
 
-        const response = await fetch(endpoint, options);
-        const responseData = await response.json();
+        /**
+         * Fungsi konfirmasi menggunakan SweetAlert (TIDAK BERUBAH)
+         * Tetap seperti ini sesuai permintaan Anda.
+         */
+        function confirmUserAction(action, userName, userId) {
+            const config = {
+                block: {
+                    title: 'Block User?',
+                    text: `You are about to block "${userName}". They will be restricted.`,
+                    confirmButtonText: 'Yes, block user!',
+                    icon: 'warning'
+                },
+                unblock: {
+                    title: 'Activate User?',
+                    text: `You are about to activate "${userName}". They will regain full access.`,
+                    confirmButtonText: 'Yes, activate user!',
+                    icon: 'info'
+                }
+            };
 
-        if (!response.ok) {
-            const errorMessage = responseData.message || `An error occurred: ${response.statusText}`;
-            throw new Error(errorMessage);
-        }
-        return responseData;
-    }
-
-    function confirmUserAction(action, userName, userId) {
-        const config = {
-            block: {
-                title: 'Block User?',
-                text: `You are about to block "${userName}". They will be restricted.`,
-                confirmButtonText: 'Yes, block user!',
-                icon: 'warning'
-            },
-            unblock: {
-                title: 'Activate User?',
-                text: `You are about to activate "${userName}". They will regain full access.`,
-                confirmButtonText: 'Yes, activate user!',
-                icon: 'info'
-            }
-        };
-
-        Swal.fire({
-            title: config[action].title,
-            text: config[action].text,
-            icon: config[action].icon,
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: config[action].confirmButtonText
-        }).then((result) => {
-            if (result.isConfirmed) {
-                processAction(action, userId, userName);
-            }
-        });
-    }
-
-    async function processAction(action, userId, userName) {
-        const endpoint = `/admin/users/${userId}/${action}`;
-
-        try {
             Swal.fire({
-                title: 'Processing...',
-                text: 'Please wait, we are processing your request.',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
+                title: config[action].title,
+                text: config[action].text,
+                icon: config[action].icon,
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: config[action].confirmButtonText
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Panggil processAction jika dikonfirmasi
+                    processAction(action, userId, userName);
                 }
             });
-
-            const data = await callApi(endpoint);
-
-            if (data.success) {
-                Swal.fire('Success!', data.message, 'success');
-                updateUserRow(action, userId, userName);
-            }
-
-        } catch (error) {
-            Swal.fire('Action Failed!', error.message, 'error');
         }
-    }
 
-  
-    function updateUserRow(originalAction, userId, userName) {
-        const statusCell = document.getElementById(`user-status-${userId}`);
-        const actionsCell = document.getElementById(`user-actions-${userId}`);
-        const viewButtonHTML = actionsCell.querySelector('a').outerHTML; // Simpan tombol view
+        // const API_URL = '{{ $apiUrl }}';
+        // const API_TOKEN = '{{ $apiToken }}';
 
-        if (originalAction === 'block') {
-            statusCell.innerHTML = '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Blocked</span>';
-            actionsCell.innerHTML = `
+        async function processAction(action, userId, userName) {
+            // HAPUS "/api" dari awal string endpoint ini
+            const endpoint = `/admin/users/${userId}/${action}`; // <-- PERBAIKAN
+
+            try {
+                const data = await callApi(endpoint, 'POST');
+
+                if (data.success) {
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                    }).showToast();
+                    updateUserRow(action, userId, userName);
+                }
+            } catch (error) {
+                Toastify({
+                    text: error.message,
+                    duration: 4000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                }).showToast();
+            }
+        }
+
+        /**
+         * Fungsi untuk memperbarui tampilan baris pengguna di tabel (TIDAK BERUBAH)
+         */
+        function updateUserRow(originalAction, userId, userName) {
+            const statusCell = document.getElementById(`user-status-${userId}`);
+            const actionsCell = document.getElementById(`user-actions-${userId}`);
+            const viewButtonHTML = actionsCell.querySelector('a').outerHTML;
+
+            if (originalAction === 'block') {
+                statusCell.innerHTML =
+                    '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Blocked</span>';
+                actionsCell.innerHTML = `
                 ${viewButtonHTML}
                 <button class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-100" title="Activate User" onclick="confirmUserAction('unblock', '${userName}', '${userId}')">
                     <i class="ri-user-follow-line text-lg"></i>
                 </button>
             `;
-        } else if (originalAction === 'unblock') {
-            statusCell.innerHTML = '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>';
-            actionsCell.innerHTML = `
+            } else if (originalAction === 'unblock') {
+                statusCell.innerHTML =
+                    '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>';
+                actionsCell.innerHTML = `
                 ${viewButtonHTML}
                 <button class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-100" title="Block User" onclick="confirmUserAction('block', '${userName}', '${userId}')">
                     <i class="ri-user-unfollow-line text-lg"></i>
                 </button>
             `;
+            }
         }
-    }
-</script>
+    </script>
 @endpush
