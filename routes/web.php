@@ -15,7 +15,6 @@ Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admi
 Route::get('/admin/auth', [AuthController::class, 'googleAuth'])->name('admin.auth');
 Route::get('/process/login', [AuthController::class, 'processLogin'])->name('processLogin');
 
-// Menangani logout admin
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
 Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -27,12 +26,13 @@ Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(functi
    Route::resource('announcements', AnnouncementController::class);
    Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
    Route::get('/role', [RoleController::class, 'index'])->name('platform.roles');
+   // dashboard
+   Route::get('/dashboard/main', [DashboardController::class, 'showMainDashboard'])->name('dashboard.main');
+   Route::get('/dashboard/statistics-data', [DashboardController::class, 'getStatisticsDataProxy'])->name('dashboard.statistics-data');
    Route::get('moderation/dashboard', [DashboardController::class, 'showReportDashboard'])->name('moderation.dashboard');
    Route::get('dashboard/report-data', [DashboardController::class, 'getReportDataProxy'])->name('dashboard.report-data.proxy');
 });
 
 Route::get('/admin/users/activity', [MainController::class, 'userActivity'])->name('admin.users.activity');
-Route::get('/admin/manage/content', [MainController::class, 'manageContent'])->name('admin.content.manage');
-Route::get('/admin/subjects/index', [MainController::class, 'subjects'])->name('admin.subjects.index');
 Route::get('/admin/moderation/log', [MainController::class, 'moderationLog'])->name('admin.moderation.log');
 Route::get('/admin/support/index', [MainController::class, 'support'])->name('admin.support.index');
