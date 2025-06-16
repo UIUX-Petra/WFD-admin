@@ -5,6 +5,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ModerationController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(functi
    Route::post('/users/{userId}/unblock', [UserController::class, 'unblockUser'])->name('users.unblock');
    Route::resource('announcements', AnnouncementController::class);
    Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
+   Route::get('/role', [RoleController::class, 'index'])->name('platform.roles');
 });
 
 Route::get('/admin/users/activity', [MainController::class, 'userActivity'])->name('admin.users.activity');
@@ -32,5 +34,3 @@ Route::get('/admin/manage/content', [MainController::class, 'manageContent'])->n
 Route::get('/admin/subjects/index', [MainController::class, 'subjects'])->name('admin.subjects.index');
 Route::get('/admin/moderation/log', [MainController::class, 'moderationLog'])->name('admin.moderation.log');
 Route::get('/admin/support/index', [MainController::class, 'support'])->name('admin.support.index');
-Route::get('/admin/platform/annoucement', [MainController::class, 'announcement'])->name('admin.platform.announcements');
-Route::get('/admin/platform/role', [MainController::class, 'role'])->name('admin.platform.roles');
