@@ -18,7 +18,6 @@ class UserController extends Controller
             'ip_address' => $request->ip()
         ]);
 
-        // ... (logika untuk mengambil data paginasi dari API tetap sama) ...
         $page = $request->query('page', 1);
         $search = $request->query('search', '');
         $status = $request->query('status', 'all');
@@ -27,27 +26,25 @@ class UserController extends Controller
         $response = Http::withToken(session('token'))->get($apiUrl, $queryParams);
 
         if ($response->failed()) {
-            // ... (logika error tetap sama) ...
             $users = new LengthAwarePaginator([], 0, 10, 1);
             return view('users.index', [
                 'users' => $users,
                 'search' => $search,
                 'status' => $status,
-                'apiUrl' => env('API_URL'), // Tambahkan ini
-                'apiToken' => session('token') // Tambahkan ini
+                'apiUrl' => env('API_URL'), 
+                'apiToken' => session('token') 
             ])->with('error', 'Gagal mengambil data pengguna.');
         }
 
         $responseData = $response->json();
         if (!isset($responseData['data']['data'])) {
-            // ... (logika error tetap sama) ...
             $users = new LengthAwarePaginator([], 0, 10, 1);
-             return view('users.index', [
+            return view('users.index', [
                 'users' => $users,
                 'search' => $search,
                 'status' => $status,
-                'apiUrl' => env('API_URL'), // Tambahkan ini
-                'apiToken' => session('token') // Tambahkan ini
+                'apiUrl' => env('API_URL'), 
+                'apiToken' => session('token') 
             ])->with('error', 'Terjadi kesalahan saat memproses data.');
         }
 
@@ -64,14 +61,34 @@ class UserController extends Controller
             'users' => $users,
             'search' => $search,
             'status' => $status,
-            'apiUrl' => env('API_URL'),      // Kirim API URL ke view
-            'apiToken' => session('token'), // Kirim token API ke view
+            'apiUrl' => env('API_URL'),     
+            'apiToken' => session('token'), 
         ]);
     }
-    
 
-    // Metode blockUser dan unblockUser TIDAK DIPERLUKAN LAGI di controller frontend ini.
-    // Hapus kedua fungsi di bawah ini.
-    // public function blockUser(Request $request, $userId) { ... }
-    // public function unblockUser(Request $request, $userId) { ... }
+
+
+public function showActivity(Request $request, $userId)
+{
+    Log::info("Membuka halaman aktivitas untuk user ID: {$userId}");
+
+    $apiUrl = env('API_URL') . '/admin/users/' . $userId . '/activity';
+    $response = Http::withToken(session('token'))->get($apiUrl);
+
+    if ($response->failed()) {
+        Log::error("Gagal mengambil data aktivitas untuk user ID: {$userId}", [
+            'status' => $response->status(),
+            'body' => $response->body()
+        ]);
+        return redirect()->route('admin.users.index')->with('error', 'Could not retrieve user activity data.');
+    }
+
+    $apiData = $response->json()['data'];
+
+    return view('users.activity', [
+        'user' => (object) $apiData['user'], // Ubah array 'user' dari JSON menjadi objek
+        'stats' => $apiData['stats'],
+        'activities' => $apiData['activities'],
+    ]);
+}
 }

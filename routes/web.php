@@ -20,9 +20,12 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.log
 Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
    Route::get('/dashboard', [MainController::class, 'dashboard'])->name('dashboard');
    Route::get('/moderation/reports', [ModerationController::class, 'index'])->name('moderation.reports');
+
    Route::get('/users/index', [UserController::class, 'getAllUsers'])->name('users.index');
+   Route::get('/users/{user}/activity', [UserController::class, 'showActivity'])->name('users.activity');
    Route::post('/users/{userId}/block', [UserController::class, 'blockUser'])->name('users.block');
    Route::post('/users/{userId}/unblock', [UserController::class, 'unblockUser'])->name('users.unblock');
+
    Route::resource('announcements', AnnouncementController::class);
    Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
    Route::get('/role', [RoleController::class, 'index'])->name('platform.roles');
@@ -33,6 +36,5 @@ Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(functi
    Route::get('dashboard/report-data', [DashboardController::class, 'getReportDataProxy'])->name('dashboard.report-data.proxy');
 });
 
-Route::get('/admin/users/activity', [MainController::class, 'userActivity'])->name('admin.users.activity');
 Route::get('/admin/moderation/log', [MainController::class, 'moderationLog'])->name('admin.moderation.log');
 Route::get('/admin/support/index', [MainController::class, 'support'])->name('admin.support.index');
