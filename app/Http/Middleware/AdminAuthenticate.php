@@ -15,9 +15,7 @@ class AdminAuthenticate
             // 2. Jika ada, izinkan request untuk melanjutkan ke controller tujuan.
             return $next($request);
         }
-
         // 3. Jika tidak ada, alihkan pengguna ke halaman login admin.
-        //    Kirim juga pesan error agar bisa ditampilkan di halaman login.
         return redirect()->route('admin.login')->with('error', 'You must be logged in as an admin to access this page.');
     }
 }

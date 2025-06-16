@@ -6,7 +6,7 @@
     <div x-data="reportManager('{{ session('token') }}', '{{ $initialType ?? 'question' }}')" x-init="init()">
         <h1 class="text-3xl font-semibold text-gray-800 mb-6">Review Content Reports</h1>
 
-        {{-- Tab navigation --}}
+        {{-- Tab nav --}}
         <div class="mb-6 border-b border-gray-200">
             <nav class="flex flex-wrap -mb-px sm:space-x-4" aria-label="Tabs">
                 <button @click="changeType('question')"
@@ -27,15 +27,14 @@
             </nav>
         </div>
 
-        {{-- Report table --}}
         <div class="bg-white p-6 rounded-lg shadow-lg">
             <div class="md:flex md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                 <h2 class="text-xl font-semibold text-gray-700"
                     x-text="`${activeType.charAt(0).toUpperCase() + activeType.slice(1)} Reports List`"></h2>
 
-                {{-- Filter Controls --}}
+                {{-- Filter --}}
                 <div class="flex flex-wrap items-center gap-4">
-                    {{-- Date Range Filter --}}
+                    {{-- Date filter --}}
                     <div class="flex items-center space-x-2">
                         <input type="date" x-model="startDate"
                             class="px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
@@ -43,7 +42,7 @@
                         <input type="date" x-model="endDate" :min="startDate"
                             class="px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
-                    {{-- Search Input --}}
+                    {{-- Search --}}
                     <div class="relative">
                         <input type="text" x-model.debounce.500ms="search"
                             class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -75,7 +74,7 @@
                 <span class="ml-3 text-gray-600">Loading Reports...</span>
             </div>
 
-            {{-- Table Container --}}
+            {{-- Table --}}
             <div class="overflow-x-auto" x-show="!isLoading">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -89,7 +88,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Reporter</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th> 
+                                Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions</th>
                         </tr>
@@ -105,23 +104,24 @@
                         </template>
                         <template x-for="report in reports" :key="report.id">
                             <tr class="align-top">
-                                {{-- Kolom 1: Report Info (Tetap) --}}
+                                {{-- Report Info --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     <a :href="report.reported_content.url" target="_blank"
                                         class="text-blue-600 hover:underline font-bold" x-text="`#${report.id}`"></a>
                                     <span class="block text-gray-500 text-xs" :title="report.date_reported"
                                         x-text="report.date_for_humans"></span>
                                 </td>
-                                {{-- Kolom 2: Reported Content (Tetap) --}}
+                                {{-- Reported Content --}}
                                 <td class="px-6 py-4 text-sm text-gray-700 max-w-sm">
                                     <a :href="report.reported_content.url" target="_blank"
                                         class="text-blue-600 hover:underline block font-semibold"
                                         x-text="`Preview of ${report.reported_content.type}`"></a>
                                     <p class="break-words mt-1 text-gray-600" x-text="report.reported_content.preview"></p>
                                     <p class="mt-2 text-xs text-red-700 bg-red-100 p-1 rounded"><strong>Reason:</strong>
-                                        <span x-text="report.reason"></span></p>
+                                        <span x-text="report.reason"></span>
+                                    </p>
                                 </td>
-                                {{-- Kolom 3: Related To (Tetap) --}}
+                                {{-- Related To --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <template x-if="report.parent_content">
                                         <a :href="report.parent_content.url" target="_blank"
@@ -132,7 +132,7 @@
                                         <span>-</span>
                                     </template>
                                 </td>
-                                {{-- Kolom 4: Reporter (Tetap) --}}
+                                {{-- Reporter --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                     <a :href="report.reporter.url" target="_blank" class="text-blue-600 hover:underline"
                                         x-text="report.reporter.name"></a>
@@ -140,7 +140,7 @@
                                         x-text="`(ID: ${report.reporter.id})`"></span>
                                 </td>
 
-                                {{-- Kolom 5: Status --}}
+                                {{-- Status --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <span
                                         :class="{
@@ -153,12 +153,12 @@
                                     </span>
                                 </td>
 
-                                {{-- Kolom 6: Actions --}}
+                                {{-- Actions --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex flex-col space-y-2">
-                                        <button @click="viewReportDetail(report)"
+                                        <button @click="viewFullContent(report)"
                                             class="flex items-center text-blue-600 hover:text-blue-900"
-                                            title="View Report Details">
+                                            title="View Full Content">
                                             <i class="ri-information-line text-lg mr-1"></i> Details
                                         </button>
                                         <button @click="processReport('approve', report.id)"
@@ -220,67 +220,172 @@
             </div>
         </div>
 
-        {{-- MODAL DETAIL --}}
+        {{-- MODAL DETAIL KONTEN --}}
         <div x-show="showDetailModal" x-cloak
             class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-60 flex items-center justify-center p-4"
             @keydown.escape.window="showDetailModal = false">
-            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl" @click.away="showDetailModal = false">
-                <div class="flex justify-between items-center mb-4 border-b pb-3">
-                    <h3 class="text-xl font-semibold text-gray-800">Report Details</h3>
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col"
+                @click.away="showDetailModal = false">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="text-xl font-semibold text-gray-800">Full Content View: <span class="capitalize"
+                            x-text="selectedReport ? selectedReport.reported_content.type : ''"></span></h3>
                     <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600"><i
                             class="ri-close-fill text-2xl"></i></button>
                 </div>
 
-                <template x-if="selectedReport">
-                    <div class="space-y-4 text-gray-700">
-                        <div>
-                            <h4 class="font-bold">Reported Content</h4>
-                            <div class="mt-1 p-3 bg-gray-50 border rounded">
-                                <p class="text-sm text-gray-500" x-text="`Type: ${selectedReport.reported_content.type}`">
-                                </p>
-                                <p class="mt-2" x-text="selectedReport.reported_content.preview"></p>
-                                <a :href="selectedReport.reported_content.url" target="_blank"
-                                    class="text-blue-600 text-sm hover:underline mt-2 inline-block">View Full Content
-                                    &rarr;</a>
-                            </div>
-                        </div>
+                <div class="p-6 overflow-y-auto space-y-6">
+                    <div x-show="isDetailLoading" class="flex justify-center items-center p-16">
+                        <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg><span class="ml-3 text-gray-600">Loading Full Content...</span>
+                    </div>
 
-                        <template x-if="selectedReport.parent_content">
-                            <div>
-                                <h4 class="font-bold">Related To</h4>
-                                <div class="mt-1 p-3 bg-gray-50 border rounded">
-                                    <p
-                                        x-text="`${selectedReport.parent_content.type}: ${selectedReport.parent_content.title}`">
-                                    </p>
-                                    <a :href="selectedReport.parent_content.url" target="_blank"
-                                        class="text-blue-600 text-sm hover:underline mt-2 inline-block">View Parent Content
-                                        &rarr;</a>
+                    <div x-show="!isDetailLoading && detailedContent" class="space-y-6">
+                        <template x-if="detailedContent && detailedContent.type === 'question'">
+                            <div class="space-y-6">
+                                {{-- Pertanyaan Utama --}}
+                                <div class="bg-gray-50 p-4 rounded-lg border">
+                                    <h4 class="text-2xl font-bold text-gray-900" x-text="detailedContent.title"></h4>
+                                    <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500 my-3">
+                                        <span><i class="ri-thumb-up-line"></i> <span x-text="detailedContent.vote"></span>
+                                            Votes</span>
+                                        <span><i class="ri-eye-line"></i> <span x-text="detailedContent.view"></span>
+                                            Views</span>
+                                        <span><i class="ri-chat-3-line"></i> <span
+                                                x-text="detailedContent.comment_count"></span> Comments</span>
+                                        <span class="text-red-600"><i class="ri-flag-line"></i> <span
+                                                x-text="detailedContent.report"></span> Reports</span>
+                                    </div>
+                                    <p class="text-gray-700 leading-relaxed" x-html="detailedContent.question"></p>
+                                    <div x-show="detailedContent.image_url" class="mt-4">
+                                        <img :src="detailedContent.image_url" alt="Question Image"
+                                            class="max-w-full h-auto rounded-lg border shadow-md">
+                                    </div>
+                                    <div class="mt-3 text-xs text-gray-500" x-show="detailedContent.user">
+                                        Posted by: <span class="font-medium"
+                                            x-text="detailedContent.user.username"></span>
+                                    </div>
+                                </div>
+                                {{-- Jawaban --}}
+                                <div>
+                                    <h5 class="text-lg font-semibold mb-3"
+                                        x-text="`Top Answers (${detailedContent.answer.length})`"></h5>
+                                    <div class="space-y-4">
+                                        <template x-for="item in detailedContent.answer" :key="item.id">
+                                            <div class="border p-4 rounded-lg"
+                                                :class="{ 'border-green-400 bg-green-50': item.verified }">
+                                                <div x-show="item.verified"
+                                                    class="inline-flex items-center bg-green-200 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded-full mb-2">
+                                                    <i class="ri-check-double-line mr-1"></i> Verified Answer</div>
+                                                <p x-html="item.answer"></p>
+                                                <div x-show="item.image_url" class="mt-3">
+                                                    <img :src="item.image_url" alt="Answer Image"
+                                                        class="max-w-md h-auto rounded-lg border shadow-md">
+                                                </div>
+                                                <div class="flex items-center space-x-4 text-xs text-gray-500 mt-3">
+                                                    <span><i class="ri-thumb-up-line"></i> <span
+                                                            x-text="item.vote"></span> Votes</span>
+                                                    <span class="text-red-600"><i class="ri-flag-line"></i> <span
+                                                            x-text="item.report"></span> Reports</span>
+                                                    <span x-show="item.user">Answered by: <span class="font-medium"
+                                                            x-text="item.user.username"></span></span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <div x-show="detailedContent.answer.length === 0"
+                                            class="text-center text-gray-500 py-4">No answers found for this question.
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </template>
 
-                        <div>
-                            <h4 class="font-bold">Report Information</h4>
-                            <div class="mt-1 p-3 bg-gray-50 border rounded">
-                                <p><strong>Reason:</strong> <span x-text="selectedReport.reason"></span></p>
-                                <p><strong>Reporter:</strong> <a :href="selectedReport.reporter.url"
-                                        x-text="selectedReport.reporter.name" target="_blank"
-                                        class="text-blue-600 hover:underline"></a></p>
-                                <p><strong>Date:</strong> <span x-text="selectedReport.date_reported"></span></p>
+                        <template x-if="detailedContent && detailedContent.type === 'answer'">
+                            <div class="space-y-4">
+                                <div class="mb-4">
+                                    <h5 class="text-md font-semibold text-gray-600">In response to Question:</h5>
+                                    <p class="text-lg font-bold text-blue-600" x-text="detailedContent.question.title">
+                                    </p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                    <p class="text-gray-700 leading-relaxed" x-html="detailedContent.answer"></p>
+                                    <div x-show="detailedContent.image_url" class="mt-4">
+                                        <img :src="detailedContent.image_url" alt="Answer Image"
+                                            class="max-w-full h-auto rounded-lg border shadow-md">
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500 mt-3">
+                                        <span><i class="ri-thumb-up-line"></i> <span x-text="detailedContent.vote"></span>
+                                            Votes</span>
+                                        <span><i class="ri-chat-3-line"></i> <span
+                                                x-text="detailedContent.comment_count"></span> Comments</span>
+                                        <span class="text-red-600"><i class="ri-flag-line"></i> <span
+                                                x-text="detailedContent.report"></span> Reports</span>
+                                    </div>
+                                    <div class="mt-3 text-xs text-gray-500" x-show="detailedContent.user">
+                                        Answered by: <span class="font-medium"
+                                            x-text="detailedContent.user.username"></span>
+                                    </div>
+                                </div>
+                                <h5 class="text-lg font-semibold pt-4">Comments</h5>
+                                <div class="space-y-3">
+                                    <template x-for="comment in detailedContent.comment" :key="comment.id">
+                                        <div class="border-l-4 border-gray-200 pl-4 text-sm">
+                                            <p x-text="comment.comment"></p>
+                                            <div class="text-xs text-gray-500 mt-1" x-show="comment.user">
+                                                By: <span class="font-medium" x-text="comment.user.username"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <div x-show="detailedContent.comment.length === 0"
+                                        class="text-center text-gray-500 py-4">No comments found for this answer.</div>
+                                </div>
                             </div>
-                        </div>
+                        </template>
+
+                        <template x-if="detailedContent.type === 'comment'">
+                            <div class="space-y-4">
+                                <div class="mb-4" x-if="detailedContent.commentable">
+                                    <h5 class="text-md font-semibold text-gray-600">
+                                        Comment on
+                                        <span class="capitalize"
+                                            x-text="getCommentableType(detailedContent.commentable_type)"></span>:
+                                    </h5>
+                                    <p class="mt-1 p-2 bg-gray-100 border-l-4 border-gray-300 text-sm text-gray-700 rounded italic"
+                                        x-text="getCommentablePreview(detailedContent.commentable)"></p>
+                                </div>
+                                <!-- Comment Block -->
+                                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                                    <p class="text-gray-700 leading-relaxed"
+                                        x-html="detailedContent.comment || '[No comment text provided]'"></p>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500 mt-3">
+                                        <span class="text-red-600"><i class="ri-flag-line"></i> <span
+                                                x-text="detailedContent.report"></span> Reports</span>
+                                    </div>
+                                    <div class="mt-3 text-xs text-gray-500" x-show="detailedContent.user">
+                                        Comment by: <span class="font-medium"
+                                            x-text="detailedContent.user.username || '[Unknown User]'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
-                </template>
+                </div>
             </div>
         </div>
-    </div>
 
+
+    </div>
 @endsection
 
 @push('scripts')
     <script>
         function reportManager(authToken, initialType) {
-            const apiBaseUrl = 'http://127.0.0.1:8001';
+            const apiBaseUrl = '{{ config('app.api_url', 'http://127.0.0.1:8001') }}';
 
             return {
                 reports: [],
@@ -291,9 +396,12 @@
                 authToken: authToken,
                 showDetailModal: false,
                 selectedReport: null,
-                startDate: '', // state untuk tanggal mulai
-                endDate: '', // state untuk tanggal akhir
+                startDate: '',
+                endDate: '',
                 activeStatus: 'pending',
+                isDetailLoading: false,
+                detailedContent: null,
+
                 init() {
                     this.fetchReports();
                     this.$watch('search', () => this.fetchReports(1));
@@ -305,7 +413,7 @@
                             if ((this.startDate && this.endDate) || (!this.startDate && !this.endDate)) {
                                 this.fetchReports(1);
                             }
-                        }, 500); 
+                        }, 500);
                     });
                 },
 
@@ -316,29 +424,24 @@
 
                 async fetchReports(page = 1) {
                     if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
-
                     this.isLoading = true;
                     try {
                         const params = new URLSearchParams({
-                            page: page,
+                            page,
                             per_page: 5,
                             search: this.search,
                             type: this.activeType,
                             status: this.activeStatus
                         });
-
                         if (this.startDate) params.append('start_date', this.startDate);
                         if (this.endDate) params.append('end_date', this.endDate);
-
                         const response = await fetch(`${apiBaseUrl}/api/admin/reports?${params.toString()}`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'Authorization': `Bearer ${this.authToken}`
                             }
                         });
-
                         if (!response.ok) throw new Error(`Server responded with status: ${response.status}`);
-
                         const result = await response.json();
                         this.reports = result.data;
                         this.pagination = result.meta;
@@ -350,9 +453,41 @@
                     }
                 },
 
-                viewReportDetail(report) {
+                async viewFullContent(report) {
                     this.selectedReport = report;
                     this.showDetailModal = true;
+                    this.isDetailLoading = true;
+                    this.detailedContent = null;
+
+                    if (!report.reported_content) {
+                        this.showToast('error', 'Reported content data is missing.');
+                        this.isDetailLoading = false;
+                        this.showDetailModal = false;
+                        return;
+                    }
+
+                    const type = report.reported_content.type.toLowerCase();
+                    const id = report.reported_content.id;
+
+                    try {
+                        const response = await fetch(`${apiBaseUrl}/api/admin/content-detail/${type}/${id}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${this.authToken}`
+                            }
+                        });
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || `Failed to fetch content details.`);
+                        }
+                        this.detailedContent = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching full content:', error);
+                        this.showToast('error', error.message);
+                        this.showDetailModal = false;
+                    } finally {
+                        this.isDetailLoading = false;
+                    }
                 },
 
                 processReport(action, reportId) {

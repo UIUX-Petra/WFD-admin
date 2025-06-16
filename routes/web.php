@@ -15,9 +15,10 @@ Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admi
 Route::get('/admin/auth', [AuthController::class, 'googleAuth'])->name('admin.auth');
 Route::get('/process/login', [AuthController::class, 'processLogin'])->name('processLogin');
 
-Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
 Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
+   Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
+
    Route::get('/dashboard', [MainController::class, 'dashboard'])->name('dashboard');
    Route::get('/moderation/reports', [ModerationController::class, 'index'])->name('moderation.reports');
 
@@ -36,5 +37,5 @@ Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(functi
    Route::get('dashboard/report-data', [DashboardController::class, 'getReportDataProxy'])->name('dashboard.report-data.proxy');
 });
 
-Route::get('/admin/moderation/log', [MainController::class, 'moderationLog'])->name('admin.moderation.log');
-Route::get('/admin/support/index', [MainController::class, 'support'])->name('admin.support.index');
+// Route::get('/admin/moderation/log', [MainController::class, 'moderationLog'])->name('admin.moderation.log');
+// Route::get('/admin/support/index', [MainController::class, 'support'])->name('admin.support.index');
