@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -19,7 +19,7 @@ Route::get('/process/login', [AuthController::class, 'processLogin'])->name('pro
 Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
    Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
-   Route::get('/dashboard', [MainController::class, 'dashboard'])->name('dashboard');
+   Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
    Route::get('/moderation/reports', [ModerationController::class, 'index'])->name('moderation.reports');
 
    Route::get('/users/index', [UserController::class, 'getAllUsers'])->name('users.index');
