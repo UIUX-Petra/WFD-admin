@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class AuthController extends Controller
+class AuthController_copy extends Controller
 {
     /**
      * Menampilkan halaman/form login untuk admin.
@@ -37,7 +37,7 @@ class AuthController extends Controller
         // 4. Tangani jika request ke API GAGAL
         // Contoh: API mengembalikan error 422 karena kredensial salah
         if ($response->failed()) {
-            return back()->with('Error', $response['message'])->withInput();
+            return back()->with('error', $response['message'])->withInput();
         }
 
         // 5. Jika request ke API BERHASIL

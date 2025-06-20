@@ -59,6 +59,17 @@
     {{-- Toastify JS --}}
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     @stack('scripts')
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: '{{ session('error') }}',
+                showConfirmButton: true,
+                confirmButtonColor: "#56843a",
+            })
+        </script>
+    @endif
 </body>
 
 </html>

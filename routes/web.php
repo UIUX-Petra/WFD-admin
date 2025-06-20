@@ -17,7 +17,7 @@ Route::get('/process/login', [AuthController::class, 'processLogin'])->name('pro
 
 
 Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
-   Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
+   Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
    Route::get('/moderation/reports', [ModerationController::class, 'index'])->name('moderation.reports');
@@ -29,12 +29,30 @@ Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(functi
 
    Route::resource('announcements', AnnouncementController::class);
    Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
-   Route::get('/role', [RoleController::class, 'index'])->name('platform.roles');
    // dashboard
    Route::get('/dashboard/main', [DashboardController::class, 'showMainDashboard'])->name('dashboard.main');
    Route::get('/dashboard/statistics-data', [DashboardController::class, 'getStatisticsDataProxy'])->name('dashboard.statistics-data');
    Route::get('moderation/dashboard', [DashboardController::class, 'showReportDashboard'])->name('moderation.dashboard');
    Route::get('dashboard/report-data', [DashboardController::class, 'getReportDataProxy'])->name('dashboard.report-data.proxy');
+
+   Route::middleware('role:content-manager,super-admin')->group(function () {
+
+   });
+   Route::middleware('role:moderator,super-admin')->group(function () {
+
+   });
+   Route::middleware('role:user-manager,super-admin')->group(function () {
+
+   });
+   Route::middleware('role:comunity-manager,super-admin')->group(function () {
+
+   });
+   Route::middleware('role:analyst,super-admin')->group(function () {
+
+   });
+   Route::middleware('role:super-admin')->group(function () {
+      Route::get('/role', [RoleController::class, 'index'])->name('platform.roles');
+   });
 });
 
 // Route::get('/admin/moderation/log', [MainController::class, 'moderationLog'])->name('admin.moderation.log');
