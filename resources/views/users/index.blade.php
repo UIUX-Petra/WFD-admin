@@ -175,79 +175,77 @@
             });
         }
 
-function promptBlockEndTime(userId, userName) {
-  const serverDateStr = document.querySelector('meta[name="server-date"]').content;
-  const serverDate = new Date(serverDateStr + 'T00:00:00');
-  serverDate.setDate(serverDate.getDate() + 1);
-  const minDate = serverDate.toISOString().slice(0, 10);
+        function promptBlockEndTime(userId, userName) {
+            const serverDateStr = document.querySelector('meta[name="server-date"]').content;
+            const serverDate = new Date(serverDateStr + 'T00:00:00');
+            serverDate.setDate(serverDate.getDate() + 2);
+            const minDate = serverDate.toISOString().slice(0, 10);
 
-  Swal.fire({
-    title: `Block “${userName}”`,
-    html: `
-      <p class="mb-4 text-center text-sm text-gray-600">
-        Pick an optional unblock date<br/>
-        <small>(leave empty for a permanent block)</small>
-      </p>
-      <div class="relative w-full">
-        <input
-          id="swal-picker"
-          type="text"
-          class="swal2-input p-0 translate-y-[4px] text-center overflow-hidden"
-          placeholder="YYYY-MM-DD (optional)"
-          readonly
-        />
-        <button
-          id="clear-picker"
-          type="button"
-          class="absolute top-1/2 right-3 h-8 w-8 flex items-center justify-center text-gray-400 hover:text-gray-600"
-          title="Clear date"
-        >
-          <i class="ri-close-line text-2xl"></i>
-        </button>
-      </div>
-    `,
-    showCancelButton: true,
-    confirmButtonText: 'Permanently block',
-    cancelButtonText: 'Cancel',
-    icon: 'warning',
-    customClass: {
-      popup: 'overflow-x-hidden'   // kill any side‐scroll on the modal
-    },
-    didOpen: () => {
-      // ensure popup itself never scrolls sideways
-      Swal.getPopup().style.overflowX = 'hidden';
+            Swal.fire({
+                title: `Block “${userName}”`,
+                html: `
+                <p class="mb-4 text-center text-sm text-gray-600">
+                    Pick an optional unblock date<br/>
+                    <small>(leave empty for a permanent block)</small>
+                </p>
+                <div class="relative w-full">
+                    <input
+                    id="swal-picker"
+                    type="text"
+                    class="swal2-input p-0 translate-y-[4px] text-center overflow-hidden"
+                    placeholder="YYYY-MM-DD (optional)"
+                    readonly
+                    />
+                    <button
+                    id="clear-picker"
+                    type="button"
+                    class="absolute top-1/2 right-3 h-8 w-8 flex items-center justify-center text-gray-400 hover:text-gray-600"
+                    title="Clear date"
+                    >
+                    <i class="ri-close-line text-2xl"></i>
+                    </button>
+                </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Permanently block',
+                cancelButtonText: 'Cancel',
+                icon: 'warning',
+                customClass: {
+                    popup: 'overflow-x-hidden'
+                },
+                didOpen: () => {
+                    Swal.getPopup().style.overflowX = 'hidden';
 
-      const inputEl = document.getElementById('swal-picker');
-      // init Flatpickr
-      const fp = flatpickr(inputEl, {
-        dateFormat: 'Y-m-d',
-        minDate,
-        position: 'below',
-        allowInput: true
-      });
+                    const inputEl = document.getElementById('swal-picker');
+                    const fp = flatpickr(inputEl, {
+                        dateFormat: 'Y-m-d',
+                        minDate,
+                        position: 'below',
+                        allowInput: true
+                    });
 
-      // swap button text when date changes
-      inputEl.addEventListener('change', () => {
-        Swal.getConfirmButton().textContent =
-          inputEl.value ? 'Block' : 'Permanently block';
-      });
+                    inputEl.addEventListener('change', () => {
+                        Swal.getConfirmButton().textContent =
+                            inputEl.value ? 'Block' : 'Permanently block';
+                    });
 
-      // clear-button handler
-      document.getElementById('clear-picker').addEventListener('click', () => {
-        fp.clear();
-        inputEl.value = '';
-        inputEl.dispatchEvent(new Event('change'));
-      });
-    },
-    preConfirm: () => {
-      const val = document.getElementById('swal-picker').value;
-      return val === '' ? null : val;
-    }
-  }).then((result) => {
-    if (!result.isConfirmed) return;
-    processAction('block', userId, userName, { end_time: result.value });
-  });
-}
+                    document.getElementById('clear-picker').addEventListener('click', () => {
+                        fp.clear();
+                        inputEl.value = '';
+                        inputEl.dispatchEvent(new Event('change'));
+                    });
+                },
+                preConfirm: () => {
+                    const val = document.getElementById('swal-picker').value;
+                    return val === '' ? null : val;
+                }
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                processAction('block', userId, userName, {
+                    end_time: result.value
+                });
+            });
+        }
 
 
         async function processAction(action, userId, userName, extra = {}) {
