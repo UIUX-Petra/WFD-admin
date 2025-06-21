@@ -112,19 +112,14 @@
 
 @push('scripts')
     <script>
-        // Ambil URL API dan Token dari variabel yang dikirim controller
         const API_URL = '{{ $apiUrl }}';
         const API_TOKEN = '{{ $apiToken }}';
 
-        /**
-         * Fungsi generik untuk memanggil API secara langsung.
-         * Menggunakan Bearer Token untuk otentikasi.
-         */
         async function callApi(endpoint, method = 'POST', body = null) {
             const headers = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Authorization': `Bearer ${API_TOKEN}` // Otentikasi langsung ke API
+                'Authorization': `Bearer ${API_TOKEN}`
             };
 
             const options = {
@@ -136,7 +131,7 @@
                 options.body = JSON.stringify(body);
             }
 
-            const response = await fetch(`${API_URL}${endpoint}`, options); // Gunakan URL API lengkap
+            const response = await fetch(`${API_URL}${endpoint}`, options);
             const responseData = await response.json();
 
             if (!response.ok) {
@@ -146,10 +141,6 @@
             return responseData;
         }
 
-        /**
-         * Fungsi konfirmasi menggunakan SweetAlert (TIDAK BERUBAH)
-         * Tetap seperti ini sesuai permintaan Anda.
-         */
         function confirmUserAction(action, userName, userId) {
             const config = {
                 block: {
@@ -175,22 +166,95 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: config[action].confirmButtonText
             }).then((result) => {
-                if (result.isConfirmed) {
-                    // Panggil processAction jika dikonfirmasi
-                    processAction(action, userId, userName);
+                if (!result.isConfirmed) return;
+                if (action === 'block') {
+                    promptBlockEndTime(userId, userName);
+                } else {
+                    processAction('unblock', userId, userName);
                 }
             });
         }
 
-        // const API_URL = '{{ $apiUrl }}';
-        // const API_TOKEN = '{{ $apiToken }}';
+function promptBlockEndTime(userId, userName) {
+  const serverDateStr = document.querySelector('meta[name="server-date"]').content;
+  const serverDate = new Date(serverDateStr + 'T00:00:00');
+  serverDate.setDate(serverDate.getDate() + 1);
+  const minDate = serverDate.toISOString().slice(0, 10);
 
-        async function processAction(action, userId, userName) {
-            // HAPUS "/api" dari awal string endpoint ini
-            const endpoint = `/admin/users/${userId}/${action}`; // <-- PERBAIKAN
+  Swal.fire({
+    title: `Block “${userName}”`,
+    html: `
+      <p class="mb-4 text-center text-sm text-gray-600">
+        Pick an optional unblock date<br/>
+        <small>(leave empty for a permanent block)</small>
+      </p>
+      <div class="relative w-full">
+        <input
+          id="swal-picker"
+          type="text"
+          class="swal2-input p-0 translate-y-[4px] text-center overflow-hidden"
+          placeholder="YYYY-MM-DD (optional)"
+          readonly
+        />
+        <button
+          id="clear-picker"
+          type="button"
+          class="absolute top-1/2 right-3 h-8 w-8 flex items-center justify-center text-gray-400 hover:text-gray-600"
+          title="Clear date"
+        >
+          <i class="ri-close-line text-2xl"></i>
+        </button>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Permanently block',
+    cancelButtonText: 'Cancel',
+    icon: 'warning',
+    customClass: {
+      popup: 'overflow-x-hidden'   // kill any side‐scroll on the modal
+    },
+    didOpen: () => {
+      // ensure popup itself never scrolls sideways
+      Swal.getPopup().style.overflowX = 'hidden';
+
+      const inputEl = document.getElementById('swal-picker');
+      // init Flatpickr
+      const fp = flatpickr(inputEl, {
+        dateFormat: 'Y-m-d',
+        minDate,
+        position: 'below',
+        allowInput: true
+      });
+
+      // swap button text when date changes
+      inputEl.addEventListener('change', () => {
+        Swal.getConfirmButton().textContent =
+          inputEl.value ? 'Block' : 'Permanently block';
+      });
+
+      // clear-button handler
+      document.getElementById('clear-picker').addEventListener('click', () => {
+        fp.clear();
+        inputEl.value = '';
+        inputEl.dispatchEvent(new Event('change'));
+      });
+    },
+    preConfirm: () => {
+      const val = document.getElementById('swal-picker').value;
+      return val === '' ? null : val;
+    }
+  }).then((result) => {
+    if (!result.isConfirmed) return;
+    processAction('block', userId, userName, { end_time: result.value });
+  });
+}
+
+
+        async function processAction(action, userId, userName, extra = {}) {
+            const endpoint = `/admin/users/${userId}/${action}`;
 
             try {
-                const data = await callApi(endpoint, 'POST');
+                const data = await callApi(endpoint, 'POST', extra);
 
                 if (data.success) {
                     Toastify({
