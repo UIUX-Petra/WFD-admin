@@ -27,7 +27,7 @@ class AuthController extends Controller
             $user = Socialite::driver('google')->user();
             if (!$user) {
                 Log::warning('Gagal mendapatkan informasi user dari Google.');
-                return redirect()->route('admin.login')->with('Error', 'Failed to get user information from Google.');
+                return redirect()->route('admin.login')->with('error', 'Failed to get user information from Google.');
             }
 
             $email = strtolower($user->getEmail());
@@ -35,42 +35,37 @@ class AuthController extends Controller
             
             Log::info('Data user dari Google diterima:', ['email' => $email, 'name' => $name]);
 
-            // Pengecekan domain email (sudah benar)
             if (!str_ends_with($email, '@john.petra.ac.id')) {
                 Log::warning('Percobaan login dengan domain tidak valid:', ['email' => $email]);
-                return redirect()->route('admin.login')->with('Error', 'Please use your Petra Christian University email to log in!');
+                return redirect()->route('admin.login')->with('error', 'Please use your Petra Christian University email to log in!');
             }
 
-            // Sesuaikan endpoint API dan parameter 'secret'
-            $apiUrl = env('API_URL') . '/admin/auth/socialite'; // Pastikan endpoint benar
+            $apiUrl = env('API_URL') . '/admin/auth/socialite';
             $payload = [
                 'name' => $name,
                 'email' => $email,
-                'secret' => env('API_SECRET') // Gunakan 'secret' bukan 'password'
+                'secret' => env('API_SECRET')
             ];
 
             Log::info('Mengirim permintaan login ke API:', ['url' => $apiUrl, 'payload' => $payload]);
 
             $response = Http::post($apiUrl, $payload);
 
-            // **PENYEMPURNAAN ERROR HANDLING**
             if ($response->failed()) {
                 Log::error('API login gagal.', [
                     'status' => $response->status(),
                     'response' => $response->body()
                 ]);
-                // Ambil pesan error spesifik dari API, jika tidak ada, gunakan pesan default
                 $errorMessage = $response->json('message', 'Login failed. Please try again.');
-                return redirect()->route('admin.login')->with('Error', $errorMessage);
+                return redirect()->route('admin.login')->with('error', $errorMessage);
             }
 
             $responseData = $response->json();
             Log::info('API login berhasil. Response data:', $responseData);
 
-            // Pengecekan struktur respons
             if (!isset($responseData['data']['token'])) {
                 Log::error('Struktur response dari API tidak valid.', ['response' => $responseData]);
-                return redirect()->route('admin.login')->with('Error', 'Invalid response from the login server.');
+                return redirect()->route('admin.login')->with('error', 'Invalid response from the login server.');
             }
             $storedUser = $responseData['data'];
             
@@ -78,21 +73,22 @@ class AuthController extends Controller
                 'id' => $storedUser['id'],
                 'email' => $storedUser['email'],
                 'name' => $storedUser['name'],
-                'token' => $storedUser['token']
+                'token' => $storedUser['token'],
+                'roles' => $storedUser['roles']
             ]);
             
-            Log::info('Session berhasil dibuat untuk user:', ['email' => $storedUser['email']]);
+            Log::info('Session berhasil dibuat untuk user:', ['email' => $storedUser['email'], 'roles' => $storedUser['roles']]);
 
             $url = session('url');
             if ($url) {
                 session()->forget('url');
                 return redirect()->to($url);
             }
-            return redirect()->route('admin.dashboard'); // Diubah ke admin.dashboard
+            return redirect()->route('admin.dashboard');
 
         } catch (\Exception $e) {
             Log::error('Google Login Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return redirect()->route('admin.login')->with('Error', 'An unexpected error occurred during login.');
+            return redirect()->route('admin.login')->with('error', 'An unexpected error occurred during login.');
         }
     }
 

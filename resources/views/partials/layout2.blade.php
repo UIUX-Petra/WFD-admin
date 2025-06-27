@@ -190,6 +190,17 @@
     <script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
 
     @yield('script')
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: '{{ session('error') }}',
+                showConfirmButton: true,
+                confirmButtonColor: "#56843a",
+            })
+        </script>
+    @endif
 </body>
 
 </html>
