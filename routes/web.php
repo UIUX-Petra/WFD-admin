@@ -15,7 +15,7 @@ Route::get('/admin/auth', [AuthController::class, 'googleAuth'])->name('admin.au
 Route::get('/process/login', [AuthController::class, 'processLogin'])->name('processLogin');
 
 
-Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['admin.auth'])->name('admin.')->group(function () {
    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 

@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $period = $request->query('period', 'month');
         $token = session('token');
 
-        $apiUrl = "http://localhost:8001/api/admin/dashboard/statistics?period={$period}";
+        $apiUrl = env('API_URL') . "/admin/dashboard/statistics?period={$period}";
 
         $response = Http::withToken($token)
             ->acceptJson()
@@ -43,7 +43,7 @@ class DashboardController extends Controller
 
         $token = session('token');
 
-        $apiUrl = "http://localhost:8001/api/admin/dashboard/report-stats?period={$period}";
+        $apiUrl = env('API_URL') . "/admin/dashboard/report-stats?period={$period}";
 
         $response = Http::withToken($token)
             ->acceptJson()
