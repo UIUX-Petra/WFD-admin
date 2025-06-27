@@ -101,7 +101,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                        <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                             No user data found.
                         </td>
                     </tr>
@@ -129,21 +129,17 @@
 
             const options = {
                 method: method.toUpperCase(),
-                headers: headers
+                headers
             };
-
-            if (body) {
-                options.body = JSON.stringify(body);
-            }
+            if (body) options.body = JSON.stringify(body);
 
             const response = await fetch(`${API_URL}${endpoint}`, options);
-            const responseData = await response.json();
+            const data = await response.json();
 
             if (!response.ok) {
-                const errorMessage = responseData.message || `An error occurred: ${response.statusText}`;
-                throw new Error(errorMessage);
+                throw new Error(data.message || `An error occurred: ${response.statusText}`);
             }
-            return responseData;
+            return data;
         }
 
         function confirmUserAction(action, userName, userId) {
@@ -271,95 +267,95 @@
                 }
             } catch (error) {
                 Toastify({
-                    text: error.message,
-                    duration: 4000,
+                    text: data.message,
+                    duration: 3000,
                     gravity: "top",
                     position: "right",
-                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
                 }).showToast();
+                updateUserRow(action, userId, userName);
             }
         }
+        // }
 
-        /**
-         * Fungsi untuk memperbarui tampilan baris pengguna di tabel (TIDAK BERUBAH)
-         */
         function updateUserRow(originalAction, userId, userName) {
             const statusCell = document.getElementById(`user-status-${userId}`);
             const actionsCell = document.getElementById(`user-actions-${userId}`);
+
+            if (!statusCell || !actionsCell) return;
             const viewButtonHTML = actionsCell.querySelector('a').outerHTML;
 
             if (originalAction === 'block') {
                 statusCell.innerHTML =
                     '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Blocked</span>';
-                actionsCell.innerHTML = `
-                ${viewButtonHTML}
-                <button class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-100" title="Activate User" onclick="confirmUserAction('unblock', '${userName}', '${userId}')">
+                actionsCell.innerHTML = `${viewButtonHTML}
+                <button class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-100" title="Activate User"
+                    onclick="confirmUserAction('unblock', '${userName}', '${userId}')">
                     <i class="ri-user-follow-line text-lg"></i>
-                </button>
-            `;
+                </button>`;
             } else if (originalAction === 'unblock') {
                 statusCell.innerHTML =
                     '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>';
-                actionsCell.innerHTML = `
-                ${viewButtonHTML}
-                <button class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-100" title="Block User" onclick="confirmUserAction('block', '${userName}', '${userId}')">
+                actionsCell.innerHTML = `${viewButtonHTML}
+                <button class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-100" title="Block User"
+                    onclick="confirmUserAction('block', '${userName}', '${userId}')">
                     <i class="ri-user-unfollow-line text-lg"></i>
-                </button>
-            `;
+                </button>`;
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search-input');
-            const statusFilter = document.getElementById('status-filter');
-            const userTableBody = document.getElementById('user-table-body');
-            const paginationLinks = document.getElementById('pagination-links');
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('search-input');
+                const statusFilter = document.getElementById('status-filter');
+                const userTableBody = document.getElementById('user-table-body');
+                const paginationLinks = document.getElementById('pagination-links');
 
-            let debounceTimer;
+                let debounceTimer;
 
-            async function fetchUsers(page = 1) {
-                const search = searchInput.value;
-                const status = statusFilter.value;
+                async function fetchUsers(page = 1) {
+                    const search = searchInput.value;
+                    const status = statusFilter.value;
 
-                userTableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4">Loading...</td></tr>`;
-
-                try {
-                    const response = await fetch(
-                        `{{ env('API_URL') }}/admin/users/basic-info?page=${page}&search=${search}&status=${status}`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'Authorization': `Bearer {{ session('token') }}`
-                            }
-                        });
-                    const result = await response.json();
-
-                    if (result.success && result.data) {
-                        renderTable(result.data);
-                    } else {
-                        throw new Error(result.message || 'Invalid data format from API.');
-                    }
-
-                } catch (error) {
                     userTableBody.innerHTML =
-                        `<tr><td colspan="8" class="text-center p-4 text-red-500">${error.message}</td></tr>`;
-                    console.error('Error fetching users:', error);
+                    `<tr><td colspan="8" class="text-center p-4">Loading...</td></tr>`;
+
+                    try {
+                        const response = await fetch(
+                            `{{ env('API_URL') }}/admin/users/basic-info?page=${page}&search=${search}&status=${status}`, {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Authorization': `Bearer {{ session('token') }}`
+                                }
+                            });
+                        const result = await response.json();
+
+                        if (result.success && result.data) {
+                            renderTable(result.data);
+                        } else {
+                            throw new Error(result.message || 'Invalid data format from API.');
+                        }
+
+                    } catch (error) {
+                        userTableBody.innerHTML =
+                            `<tr><td colspan="8" class="text-center p-4 text-red-500">${error.message}</td></tr>`;
+                        console.error('Error fetching users:', error);
+                    }
                 }
-            }
 
-            function renderTable(response) {
-                userTableBody.innerHTML = '';
+                function renderTable(response) {
+                    userTableBody.innerHTML = '';
 
-                if (response.data && response.data.length > 0) {
-                    response.data.forEach(user => {
-                        const statusBadge = user.status === 'Active' ?
-                            `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>` :
-                            `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Blocked</span>`;
+                    if (response.data && response.data.length > 0) {
+                        response.data.forEach(user => {
+                            const statusBadge = user.status === 'Active' ?
+                                `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>` :
+                                `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Blocked</span>`;
 
-                        const actionButton = user.status === 'Active' ?
-                            `<button class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-100" title="Block User" onclick="confirmUserAction('block', '${user.username}', '${user.id}')"><i class="ri-user-unfollow-line text-lg"></i></button>` :
-                            `<button class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-100" title="Activate User" onclick="confirmUserAction('unblock', '${user.username}', '${user.id}')"><i class="ri-user-follow-line text-lg"></i></button>`;
+                            const actionButton = user.status === 'Active' ?
+                                `<button class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-100" title="Block User" onclick="confirmUserAction('block', '${user.username}', '${user.id}')"><i class="ri-user-unfollow-line text-lg"></i></button>` :
+                                `<button class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-100" title="Activate User" onclick="confirmUserAction('unblock', '${user.username}', '${user.id}')"><i class="ri-user-follow-line text-lg"></i></button>`;
 
-                        const userRow = `
+                            const userRow = `
                         <tr class="align-top" id="user-row-${user.id}">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.id}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -381,44 +377,44 @@
                                 ${actionButton}
                             </td>
                         </tr>`;
-                        userTableBody.innerHTML += userRow;
-                    });
-                } else {
-                    userTableBody.innerHTML =
-                        `<tr><td colspan="7" class="text-center p-4">No users found matching your criteria.</td></tr>`;
+                            userTableBody.innerHTML += userRow;
+                        });
+                    } else {
+                        userTableBody.innerHTML =
+                            `<tr><td colspan="7" class="text-center p-4">No users found matching your criteria.</td></tr>`;
+                    }
+
+                    let linksHtml = '';
+                    if (response.links) {
+                        response.links.forEach(link => {
+                            if (link.url) {
+                                linksHtml +=
+                                    `<a href="${link.url}" class="px-3 py-2 ${link.active ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'} border border-gray-300 rounded-md text-sm">${link.label.replace('&laquo;', '').replace('&raquo;', '')}</a> `;
+                            }
+                        });
+                    }
+                    paginationLinks.innerHTML = linksHtml;
                 }
 
-                let linksHtml = '';
-                if (response.links) {
-                    response.links.forEach(link => {
-                        if (link.url) {
-                            linksHtml +=
-                                `<a href="${link.url}" class="px-3 py-2 ${link.active ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'} border border-gray-300 rounded-md text-sm">${link.label.replace('&laquo;', '').replace('&raquo;', '')}</a> `;
-                        }
-                    });
-                }
-                paginationLinks.innerHTML = linksHtml;
-            }
+                searchInput.addEventListener('keyup', function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        fetchUsers();
+                    }, 500);
+                });
 
-            searchInput.addEventListener('keyup', function() {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    fetchUsers(); 
-                }, 500);
-            });
+                statusFilter.addEventListener('change', function() {
+                    fetchUsers();
+                });
 
-            statusFilter.addEventListener('change', function() {
-                fetchUsers(); 
+                paginationLinks.addEventListener('click', function(event) {
+                    if (event.target.tagName === 'A') {
+                        event.preventDefault();
+                        const url = new URL(event.target.href);
+                        const page = url.searchParams.get('page');
+                        fetchUsers(page);
+                    }
+                });
             });
-
-            paginationLinks.addEventListener('click', function(event) {
-                if (event.target.tagName === 'A') {
-                    event.preventDefault(); 
-                    const url = new URL(event.target.href);
-                    const page = url.searchParams.get('page'); 
-                    fetchUsers(page);
-                }
-            });
-        });
     </script>
 @endpush
