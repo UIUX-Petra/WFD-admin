@@ -33,11 +33,13 @@
             x-transition:leave-end="transform opacity-0 scale-95"
             class="absolute right-0 z-50 mt-2 w-48 bg-white rounded-lg shadow-md overflow-hidden ring-1 ring-gray-100"
             x-cloak>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profil (Coming Soon)</a>
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700">
-                Logout
-            </a>
+            <form action="{{ route('admin.logout') }}" method="POST">
+                @csrf
+                <button type="submit"
+                    class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 focus:outline-none">
+                    Logout
+                </button>
+            </form>
         </div>
     </div>
 </header>
