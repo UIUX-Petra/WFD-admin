@@ -17,7 +17,7 @@ Route::get('/process/login', [AuthController::class, 'processLogin'])->name('pro
 
 Route::middleware(['admin.auth'])->name('admin.')->group(function () {
    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+   Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
    Route::middleware('role:content-manager,super-admin')->group(function () {
       Route::get('moderation/dashboard', [DashboardController::class, 'showReportDashboard'])->name('moderation.dashboard');
@@ -40,7 +40,6 @@ Route::middleware(['admin.auth'])->name('admin.')->group(function () {
    });
    Route::middleware('role:analyst,super-admin')->group(function () {
       Route::get('/dashboard/statistics-data', [DashboardController::class, 'getStatisticsDataProxy'])->name('dashboard.statistics-data');
-      Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
       Route::get('/dashboard/main', [DashboardController::class, 'showMainDashboard'])->name('dashboard.main');
    });
    Route::middleware('role:super-admin')->group(function () {
