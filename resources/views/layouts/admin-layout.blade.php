@@ -42,7 +42,7 @@
 </head>
 
 <body class="bg-gray-100 font-sans antialiased">
-    <div x-data="{ sidebarOpen: true }" class="flex h-screen bg-gray-200">
+   <div x-data="{ sidebarOpen: true, sidebarExpanded: true }" class="flex h-screen bg-gray-200">
         @include('partials._sidebar')
 
         <div class="flex-1 flex flex-col overflow-hidden">

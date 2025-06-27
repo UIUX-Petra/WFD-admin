@@ -1,12 +1,11 @@
 <style>
-    /* Style ini memastikan font di sidebar konsisten */
     aside,
     aside * {
         font-family: sans-serif !important;
     }
 </style>
 
-<aside x-data="{ sidebarExpanded: true }" x-show="sidebarOpen" @click.away="if (window.innerWidth < 768) sidebarOpen = false"
+<aside x-show="sidebarOpen" @click.away="if (window.innerWidth < 768) sidebarOpen = false" 
     x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="-translate-x-full"
     x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in-out duration-300"
     x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
@@ -32,7 +31,7 @@
             <span x-show="sidebarExpanded">Dashboard</span>
         </a>
 
-        @hasrole('user-manager|super-admin')
+        @hasrole('user-manager', 'super-admin')
             <div>
                 <h3 x-show="sidebarExpanded" class="px-4 pt-2 text-xs uppercase text-gray-400 font-semibold tracking-wider">Users</h3>
                 <a href="{{ route('admin.users.index') }}"
@@ -44,7 +43,7 @@
             </div>
         @endhasrole
 
-        @hasrole('moderator|super-admin')
+        @hasrole('moderator', 'super-admin')
             <div>
                 <h3 x-show="sidebarExpanded" class="px-4 pt-2 text-xs uppercase text-gray-400 font-semibold tracking-wider">Moderation</h3>
                 <a href="{{ route('admin.moderation.dashboard') }}"
@@ -62,7 +61,7 @@
             </div>
         @endhasrole
 
-        @hasrole('content-manager|super-admin')
+        @hasrole('content-manager', 'super-admin')
             <div>
                 <h3 x-show="sidebarExpanded" class="px-4 pt-2 text-xs uppercase text-gray-400 font-semibold tracking-wider">Academic</h3>
                 <a href="{{ route('admin.subjects.index') }}"
@@ -74,7 +73,7 @@
             </div>
         @endhasrole
 
-        @hasrole('comunity-manager|super-admin')
+        @hasrole('comunity-manager', 'super-admin')
             <div>
                 <h3 x-show="sidebarExpanded" class="px-4 pt-2 text-xs uppercase text-gray-400 font-semibold tracking-wider">Platform</h3>
                 <a href="{{ route('admin.announcements.index') }}"
