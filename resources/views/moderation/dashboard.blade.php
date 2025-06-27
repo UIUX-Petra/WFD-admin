@@ -21,8 +21,8 @@
 @endpush
 
 @section('content')
-    <div x-data="reportDashboard()" x-init="init()">
-        {{-- Header n filter --}}
+    <div x-data="reportDashboard()" x-init="init()" class="relative">
+        {{-- Header & Filter --}}
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
             <h1 class="text-3xl font-semibold text-gray-800">Reports & Moderation Dashboard</h1>
             <div class="flex items-center bg-gray-200 rounded-lg p-1 space-x-1">
@@ -35,12 +35,23 @@
             </div>
         </div>
 
-        <div x-show="isLoading" x-transition
-            class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
-            <p class="text-lg font-semibold text-gray-600">Loading new data...</p>
+        {{-- Loader spinner --}}
+        <div x-show="isLoading"
+             x-transition.opacity
+             class="absolute inset-0 top-50 left-50 bg-white bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-500">
+            <div class="flex flex-col items-center space-y-2">
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                            stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"></path>
+                </svg>
+                <p class="text-sm text-gray-600 font-medium">Loading new data...</p>
+            </div>
         </div>
 
-        {{-- statistic card--}}
+        {{-- Statistic cards --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <p class="text-sm font-medium text-gray-500">Total Reports Received</p>
@@ -60,7 +71,7 @@
             </div>
         </div>
 
-        {{-- Visualisasi grafik --}}
+        {{-- Charts --}}
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-lg">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4">Report Trends</h3>
@@ -72,16 +83,14 @@
             </div>
         </div>
 
-        {{-- Rincian tabel --}}
+        {{-- Table --}}
         <div class="mt-8 bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
             <h3 class="text-xl font-semibold text-gray-700 mb-4">Breakdown by Report Reason</h3>
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number of
-                            Reports</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number of Reports</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -96,8 +105,7 @@
                     </template>
                     <template x-if="!isLoading && data.table.reasonBreakdown.length === 0">
                         <tr>
-                            <td colspan="2" class="px-6 py-4 text-center text-gray-500">No data available for this
-                                period.</td>
+                            <td colspan="2" class="px-6 py-4 text-center text-gray-500">No data available for this period.</td>
                         </tr>
                     </template>
                 </tbody>
@@ -144,7 +152,11 @@
 
                 async fetchDashboardData() {
                     this.isLoading = true;
+
                     try {
+                        // Delay 400ms for smoother loading transition
+                        await new Promise(resolve => setTimeout(resolve, 400));
+
                         const url = `/admin/dashboard/report-data?period=${this.selectedPeriod}`;
                         const response = await fetch(url, {
                             headers: {
@@ -152,7 +164,7 @@
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             }
                         });
-                        
+
                         if (!response.ok) {
                             const errorBody = await response.text();
                             throw new Error(`Failed to fetch dashboard data. Status: ${response.status}. Body: ${errorBody}`);
@@ -160,14 +172,14 @@
 
                         this.data = await response.json();
 
-                        console.log('Data received by frontend:', JSON.parse(JSON.stringify(this.data)));
+                        console.log('Data received:', JSON.parse(JSON.stringify(this.data)));
 
                         this.updateTrendChart();
                         this.updateTypeChart();
 
                     } catch (error) {
                         console.error('Dashboard Error:', error);
-                        alert('Could not load dashboard data. Check the browser console for details.');
+                        alert('Could not load dashboard data. See console for details.');
                     } finally {
                         this.isLoading = false;
                     }
@@ -185,19 +197,22 @@
                         type: 'line',
                         data: {
                             labels: this.data.charts.trend.labels,
-                            datasets: [{
-                                label: 'Reports Received',
-                                data: this.data.charts.trend.received,
-                                borderColor: '#3b82f6',
-                                tension: 0.1,
-                                fill: false
-                            }, {
-                                label: 'Reports Handled',
-                                data: this.data.charts.trend.handled,
-                                borderColor: '#16a34a',
-                                tension: 0.1,
-                                fill: false
-                            }]
+                            datasets: [
+                                {
+                                    label: 'Reports Received',
+                                    data: this.data.charts.trend.received,
+                                    borderColor: '#3b82f6',
+                                    tension: 0.1,
+                                    fill: false
+                                },
+                                {
+                                    label: 'Reports Handled',
+                                    data: this.data.charts.trend.handled,
+                                    borderColor: '#16a34a',
+                                    tension: 0.1,
+                                    fill: false
+                                }
+                            ]
                         }
                     });
                 },
@@ -212,8 +227,10 @@
                             datasets: [{
                                 label: 'Report by Type',
                                 data: this.data.charts.typeBreakdown.data,
-                                backgroundColor: ['#f97316', '#a855f7', '#0d9488',
-                                '#facc15', '#ec4899', '#6366f1'], 
+                                backgroundColor: [
+                                    '#f97316', '#a855f7', '#0d9488',
+                                    '#facc15', '#ec4899', '#6366f1'
+                                ],
                                 hoverOffset: 4
                             }]
                         }

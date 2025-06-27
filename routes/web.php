@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;

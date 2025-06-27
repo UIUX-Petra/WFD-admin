@@ -11,10 +11,10 @@ class MainController extends Controller
 //     $data['title'] = 'Login';
 //     return view('login', $data);
 // }
-// public function dashboard(){
-//     $data['title'] = 'dashboard';
-//     return view('dashboard.index', $data);
-// }
+public function dashboard(){
+    $data['title'] = 'dashboard';
+    return view('dashboard.index', $data);
+}
 // public function userRegistration(){
 //     $data['title'] = 'User Registration';
 //     return view('users.index', $data);
