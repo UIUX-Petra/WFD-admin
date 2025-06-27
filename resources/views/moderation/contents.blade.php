@@ -59,6 +59,15 @@
                             <option value="rejected">Rejected</option>
                         </select>
                     </div>
+                    <div class="relative">
+                        <select x-model="reasonFilter"
+                            class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                            <option value="">All Reasons</option>
+                            <template x-for="reason in reportReasons" :key="reason.id">
+                                <option :value="reason.id" x-text="reason.title"></option>
+                            </template>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -118,7 +127,7 @@
                                         x-text="`Preview of ${report.reported_content.type}`"></a>
                                     <p class="break-words mt-1 text-gray-600" x-text="report.reported_content.preview"></p>
                                     <p class="mt-2 text-xs text-red-700 bg-red-100 p-1 rounded"><strong>Reason:</strong>
-                                        <span x-text="report.reason"></span>
+                                        <span x-text="report.reason ? report.reason.title : 'N/A'"></span>
                                     </p>
                                 </td>
                                 {{-- Related To --}}
@@ -281,7 +290,8 @@
                                                 :class="{ 'border-green-400 bg-green-50': item.verified }">
                                                 <div x-show="item.verified"
                                                     class="inline-flex items-center bg-green-200 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded-full mb-2">
-                                                    <i class="ri-check-double-line mr-1"></i> Verified Answer</div>
+                                                    <i class="ri-check-double-line mr-1"></i> Verified Answer
+                                                </div>
                                                 <p x-html="item.answer"></p>
                                                 <div x-show="item.image_url" class="mt-3">
                                                     <img :src="item.image_url" alt="Answer Image"
@@ -347,7 +357,7 @@
                             </div>
                         </template>
 
-                        <template x-if="detailedContent.type === 'comment'">
+                       <template x-if="detailedContent && detailedContent.type === 'comment'">
                             <div class="space-y-4">
                                 <div class="mb-4" x-if="detailedContent.commentable">
                                     <h5 class="text-md font-semibold text-gray-600">
@@ -390,6 +400,8 @@
             return {
                 reports: [],
                 pagination: {},
+                reportReasons: [],
+                reasonFilter: '',
                 isLoading: true,
                 search: '',
                 activeType: initialType || 'question',
@@ -403,9 +415,11 @@
                 detailedContent: null,
 
                 init() {
+                    this.fetchReportReasons();
                     this.fetchReports();
                     this.$watch('search', () => this.fetchReports(1));
                     this.$watch('activeStatus', () => this.fetchReports(1));
+                    this.$watch('reasonFilter', () => this.fetchReports(1));
                     let dateTimeout;
                     this.$watch(['startDate', 'endDate'], () => {
                         clearTimeout(dateTimeout);
@@ -421,7 +435,21 @@
                     this.activeType = newType;
                     this.fetchReports(1);
                 },
-
+                async fetchReportReasons() {
+                    try {
+                        const response = await fetch(`${apiBaseUrl}/api/admin/report-reasons`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${this.authToken}`
+                            }
+                        });
+                        if (!response.ok) throw new Error('Failed to fetch reasons');
+                        this.reportReasons = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching report reasons:', error);
+                        this.showToast('error', 'Failed to load report reasons.');
+                    }
+                },
                 async fetchReports(page = 1) {
                     if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
                     this.isLoading = true;
@@ -433,6 +461,10 @@
                             type: this.activeType,
                             status: this.activeStatus
                         });
+
+                        if (this.reasonFilter) {
+                            params.append('reason_id', this.reasonFilter);
+                        }
                         if (this.startDate) params.append('start_date', this.startDate);
                         if (this.endDate) params.append('end_date', this.endDate);
                         const response = await fetch(`${apiBaseUrl}/api/admin/reports?${params.toString()}`, {
