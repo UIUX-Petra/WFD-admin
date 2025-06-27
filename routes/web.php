@@ -4,7 +4,6 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MainController;
 use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;

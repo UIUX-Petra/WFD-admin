@@ -18,10 +18,11 @@
                 </span>
             </div>
             <div>
-                <select class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
-                    <option value="all">All Statuses</option>
-                    <option value="active">Active</option>
-                    <option value="blocked">Blocked</option>
+                <select id="status-filter"
+                    class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all" @if ($status == 'all') selected @endif>All Statuses</option>
+                    <option value="active" @if ($status == 'active') selected @endif>Active</option>
+                    <option value="blocked" @if ($status == 'blocked') selected @endif>Blocked</option>
                 </select>
             </div>
         </div>
@@ -40,6 +41,9 @@
                         Date</th>
                     <th scope="col"
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Block Ends
+                    </th>
                     <th scope="col"
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -72,6 +76,7 @@
                                     class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Blocked</span>
                             @endif
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->end_time }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1"
                             id="user-actions-{{ $user->id }}">
                             <a href="{{ route('admin.users.activity', $user->id) }}"
@@ -96,7 +101,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                             No user data found.
                         </td>
                     </tr>
@@ -303,5 +308,20 @@
             `;
             }
         }
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusFilter = document.getElementById('status-filter');
+            if (statusFilter) {
+                statusFilter.addEventListener('change', function() {
+                    const selectedStatus = this.value;
+
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set('status', selectedStatus);
+
+                    currentUrl.searchParams.set('page', '1');
+
+                    window.location.href = currentUrl.toString();
+                });
+            }
+        });
     </script>
 @endpush
