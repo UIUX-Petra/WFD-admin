@@ -14,8 +14,8 @@
 
     <div x-data="{ dropdownOpen: false }" class="relative">
         <button @click="dropdownOpen = !dropdownOpen" class="flex items-center space-x-2 relative focus:outline-none">
-            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Admin') }}&background=random&color=fff" alt="Avatar" class="h-9 w-9 rounded-full object-cover">
-            <span class="hidden md:block text-sm font-medium text-gray-700">{{ Auth::user()->name ?? 'Admin Name' }}</span>
+         <img src="https://ui-avatars.com/api/?name={{ urlencode(session('name') ?? 'Admin') }}&background=random" alt="Avatar" class="h-9 w-9 rounded-full object-cover">
+           <span class="hidden md:block text-sm font-medium text-gray-700">{{ session('name') ?? 'Admin' }}</span>
             <i class="ri-arrow-down-s-line hidden md:block text-gray-700"></i>
         </button>
 

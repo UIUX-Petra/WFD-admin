@@ -9,10 +9,10 @@
 
     <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
         <div class="mb-4 flex justify-between items-center">
-            <div class="relative w-full max-w-xs">
-                <input type="text"
+            <div class="relative w-full sm:max-w-xs mb-2 sm:mb-0">
+                <input type="text" id="search-input" {{-- 1. Beri ID pada input search --}}
                     class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Search users...">
+                    placeholder="Search ID, username, email..." value="{{ $search ?? '' }}">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                     <i class="ri-search-line text-gray-400"></i>
                 </span>
@@ -48,7 +48,7 @@
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody id="user-table-body" class="bg-white divide-y divide-gray-200">
                 @forelse ($users as $user)
                     @php($user = (object) $user)
                     <tr class="align-top" id="user-row-{{ $user->id }}">
@@ -57,7 +57,7 @@
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-8 w-8">
                                     <img class="h-8 w-8 rounded-full"
-                                        src="{{ $user->image ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->username) . '&background=random&color=fff' }}"
+                                        src="{{ $user->image ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->username) . '&background=random' }}"
                                         alt="{{ $user->username }}">
                                 </div>
                                 <div class="ml-3">
@@ -109,7 +109,7 @@
             </tbody>
         </table>
 
-        <div class="mt-6">
+        <div id="pagination-links" class="mt-6">
             {{ $users->links() }}
         </div>
     </div>
@@ -308,20 +308,117 @@
             `;
             }
         }
+
         document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
             const statusFilter = document.getElementById('status-filter');
-            if (statusFilter) {
-                statusFilter.addEventListener('change', function() {
-                    const selectedStatus = this.value;
+            const userTableBody = document.getElementById('user-table-body');
+            const paginationLinks = document.getElementById('pagination-links');
 
-                    const currentUrl = new URL(window.location.href);
-                    currentUrl.searchParams.set('status', selectedStatus);
+            let debounceTimer;
 
-                    currentUrl.searchParams.set('page', '1');
+            async function fetchUsers(page = 1) {
+                const search = searchInput.value;
+                const status = statusFilter.value;
 
-                    window.location.href = currentUrl.toString();
-                });
+                userTableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4">Loading...</td></tr>`;
+
+                try {
+                    const response = await fetch(
+                        `{{ env('API_URL') }}/admin/users/basic-info?page=${page}&search=${search}&status=${status}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer {{ session('token') }}`
+                            }
+                        });
+                    const result = await response.json();
+
+                    if (result.success && result.data) {
+                        renderTable(result.data);
+                    } else {
+                        throw new Error(result.message || 'Invalid data format from API.');
+                    }
+
+                } catch (error) {
+                    userTableBody.innerHTML =
+                        `<tr><td colspan="8" class="text-center p-4 text-red-500">${error.message}</td></tr>`;
+                    console.error('Error fetching users:', error);
+                }
             }
+
+            function renderTable(response) {
+                userTableBody.innerHTML = '';
+
+                if (response.data && response.data.length > 0) {
+                    response.data.forEach(user => {
+                        const statusBadge = user.status === 'Active' ?
+                            `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>` :
+                            `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Blocked</span>`;
+
+                        const actionButton = user.status === 'Active' ?
+                            `<button class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-100" title="Block User" onclick="confirmUserAction('block', '${user.username}', '${user.id}')"><i class="ri-user-unfollow-line text-lg"></i></button>` :
+                            `<button class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-100" title="Activate User" onclick="confirmUserAction('unblock', '${user.username}', '${user.id}')"><i class="ri-user-follow-line text-lg"></i></button>`;
+
+                        const userRow = `
+                        <tr class="align-top" id="user-row-${user.id}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.id}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8">
+                                        <img class="h-8 w-8 rounded-full" src="${user.image ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`}" alt="${user.username}">
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">${user.username}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${user.email}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.registered_at}</td>
+                            <td class="px-6 py-4 whitespace-nowrap" id="user-status-${user.id}">${statusBadge}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.end_time}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1" id="user-actions-${user.id}">
+                                <a href="/admin/users/${user.id}/activity" class="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-100" title="View Activity"><i class="ri-eye-line text-lg"></i></a>
+                                ${actionButton}
+                            </td>
+                        </tr>`;
+                        userTableBody.innerHTML += userRow;
+                    });
+                } else {
+                    userTableBody.innerHTML =
+                        `<tr><td colspan="7" class="text-center p-4">No users found matching your criteria.</td></tr>`;
+                }
+
+                let linksHtml = '';
+                if (response.links) {
+                    response.links.forEach(link => {
+                        if (link.url) {
+                            linksHtml +=
+                                `<a href="${link.url}" class="px-3 py-2 ${link.active ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'} border border-gray-300 rounded-md text-sm">${link.label.replace('&laquo;', '').replace('&raquo;', '')}</a> `;
+                        }
+                    });
+                }
+                paginationLinks.innerHTML = linksHtml;
+            }
+
+            searchInput.addEventListener('keyup', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    fetchUsers(); 
+                }, 500);
+            });
+
+            statusFilter.addEventListener('change', function() {
+                fetchUsers(); 
+            });
+
+            paginationLinks.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                    event.preventDefault(); 
+                    const url = new URL(event.target.href);
+                    const page = url.searchParams.get('page'); 
+                    fetchUsers(page);
+                }
+            });
         });
     </script>
 @endpush
