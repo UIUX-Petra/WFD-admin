@@ -362,7 +362,7 @@
 @push('scripts')
     <script>
         function reportManager(authToken, initialType) {
-            const apiBaseUrl = '{{ config('app.api_url', 'http://127.0.0.1:8001') }}';
+            const apiBaseUrl = "{{ env('API_URL') }}";
 
             return {
                 reports: [],
