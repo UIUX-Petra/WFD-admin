@@ -10,12 +10,10 @@ class AdminAuthenticate
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Periksa apakah session 'token' ada DAN tidak kosong.
-        if ($request->session()->has('token') && !empty($request->session()->get('token'))) {
-            // 2. Jika ada, izinkan request untuk melanjutkan ke controller tujuan.
-            return $next($request);
+       if(!session('email')){
+            session()->put('url', url()->current());
+            return redirect()->route('loginOrRegist');
         }
-        // 3. Jika tidak ada, alihkan pengguna ke halaman login admin.
-        return redirect()->route('admin.login')->with('error', 'You must be logged in as an admin to access this page.');
+        return $next($request);
     }
 }

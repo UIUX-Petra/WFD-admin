@@ -7,6 +7,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Admin Panel - @yield('title', 'Dashboard')</title>
+    <link rel="icon" href="{{ asset('image/p2p logo.svg') }}" type="image/svg+xml">
+    
+    
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
@@ -24,18 +27,15 @@
         .sidebar-link:hover,
         .sidebar-link.active {
             background-color: #374151;
-            /* gray-700 */
             color: #ffffff;
         }
 
         .sidebar-link.active {
             border-left: 3px solid #3b82f6;
-            /* blue-500 */
         }
 
         .sidebar-link {
             padding-left: calc(1rem - 3px);
-            /* Adjust padding for active border */
         }
     </style>
     @yield('style')

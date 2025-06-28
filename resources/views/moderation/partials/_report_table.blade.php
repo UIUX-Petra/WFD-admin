@@ -5,7 +5,6 @@
     }
 
     .pagination-links ul.pagination {
-        /* Bootstrap default */
         padding-left: 0;
         margin: 20px 0;
         border-radius: 4px;
@@ -62,11 +61,8 @@
     }
 </style>
 
-{{-- resources/views/admin/moderation/partials/_report_table.blade.php --}}
 <div class="mb-4 flex justify-between items-center">
-    {{-- BUNGKUS DENGAN FORM --}}
     <form action="{{ route('admin.moderation.reports') }}" method="GET" class="w-full max-w-xs">
-        {{-- Pertahankan parameter 'type' saat mencari --}}
         <input type="hidden" name="type" value="{{ request('type', 'question') }}">
 
         <div class="relative">
@@ -77,8 +73,7 @@
                 <i class="ri-search-line text-gray-400"></i>
             </span>
         </div>
-        {{-- Tombol submit bisa disembunyikan jika Anda ingin search terjadi saat menekan Enter --}}
-        {{-- <button type="submit" class="hidden">Search</button> --}}
+
     </form>
 </div>
 {{-- ... Search bar ... --}}
@@ -146,11 +141,9 @@
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
-                    {{-- Gunakan $report['id'] karena data berasal dari array JSON --}}
-                    <button class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-100"
-                        title="View Report Details"
-                        onclick="viewReportDetail('{{ $reportItemType }}', {{ $report['id'] }})">
-                        <i class="ri-information-line text-lg"></i>
+                    <button @click="viewFullContent(report)" class="flex items-center text-blue-600 hover:text-blue-900"
+                        title="View Full Content">
+                        <i class="ri-information-line text-lg mr-1"></i> Details
                     </button>
                     <button class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-100"
                         title="Approve Report"
@@ -173,6 +166,3 @@
         @endforelse
     </tbody>
 </table>
-
-
-

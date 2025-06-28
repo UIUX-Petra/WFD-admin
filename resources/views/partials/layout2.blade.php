@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    {{-- <link rel="icon" href="{{ asset('assets/logo2425-white.png') }}"> --}}
+    <link rel="icon" href="{{ asset('image/p2p logo.svg') }}" type="image/svg+xml">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{-- <title>{{ $title }}</title> --}}
@@ -169,11 +169,8 @@
     </style>
     @yield('style')
 </head>
-{{-- @include('partials.nav') --}}
 <body>
-    {{-- @include('partials.loader') --}}
     @yield('content')
-    {{-- Insert <script> CDN below --}}
 
     {{-- TW Elements --}}
     <script src="https://cdn.jsdelivr.net/npm/tw-elements/js/tw-elements.umd.min.js"></script>
