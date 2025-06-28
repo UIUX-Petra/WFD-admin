@@ -12,7 +12,7 @@ class AdminAuthenticate
     {
        if(!session('email')){
             session()->put('url', url()->current());
-            return redirect()->route('loginOrRegist');
+            return redirect()->route('admin.login');
         }
         return $next($request);
     }
