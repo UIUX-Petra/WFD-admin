@@ -140,8 +140,8 @@
                                     </template>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                    <a :href="report.reporter.url" target="_blank" class="text-blue-600 hover:underline"
-                                        x-text="report.reporter.name"></a>
+                                    <span class=""
+                                        x-text="report.reporter.name"></span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize"
