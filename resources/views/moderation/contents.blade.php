@@ -402,7 +402,7 @@
                 },
                 async fetchReportReasons() {
                     try {
-                        const response = await fetch(`${apiBaseUrl}/api/admin/report-reasons`, {
+                        const response = await fetch(`${apiBaseUrl}/admin/report-reasons`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'Authorization': `Bearer ${this.authToken}`
@@ -429,7 +429,7 @@
                         if (this.reasonFilter) params.append('reason_id', this.reasonFilter);
                         if (this.startDate) params.append('start_date', this.startDate);
                         if (this.endDate) params.append('end_date', this.endDate);
-                        const response = await fetch(`${apiBaseUrl}/api/admin/reports?${params.toString()}`, {
+                        const response = await fetch(`${apiBaseUrl}/admin/reports?${params.toString()}`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'Authorization': `Bearer ${this.authToken}`
@@ -460,7 +460,7 @@
                     const type = report.reported_content.type.toLowerCase();
                     const id = report.reported_content.id;
                     try {
-                        const response = await fetch(`${apiBaseUrl}/api/admin/content-detail/${type}/${id}`, {
+                        const response = await fetch(`${apiBaseUrl}/admin/content-detail/${type}/${id}`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'Authorization': `Bearer ${this.authToken}`
@@ -496,7 +496,7 @@
                         if (result.isConfirmed) {
                             try {
                                 const response = await fetch(
-                                    `${apiBaseUrl}/api/admin/reports/${reportId}/process`, {
+                                    `${apiBaseUrl}/admin/reports/${reportId}/process`, {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
