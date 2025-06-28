@@ -231,8 +231,8 @@ function roleManager() {
        debounceTimer: null,
 
 
-       API_URL: 'http://localhost:8001/api/admin/roles',
-       ADMINS_API_URL: 'http://localhost:8001/api/admin/admins',
+       API_URL: "{{ env('API_URL') }}/admin/roles",
+       ADMINS_API_URL: "{{ env('API_URL') }}/admin/admins",
 
 
        get apiHeaders() {

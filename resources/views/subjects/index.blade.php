@@ -208,7 +208,7 @@
     <script>
         // nerima param token
         function subjectManager(authToken) {
-            const apiBaseUrl = 'http://127.0.0.1:8001';
+            const apiBaseUrl = "{{ env('API_URL') }}";
 
             return {
                 // State
@@ -247,7 +247,7 @@
                             search: this.search,
                         });
 
-                        const response = await fetch(`${apiBaseUrl}/api/admin/subjects?${params.toString()}`, {
+                        const response = await fetch(`${apiBaseUrl}/admin/subjects?${params.toString()}`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest',
@@ -289,7 +289,7 @@
 
                 async addSubject() {
                     try {
-                        const response = await fetch(`${apiBaseUrl}/api/admin/subjects`, {
+                        const response = await fetch(`${apiBaseUrl}/admin/subjects`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -332,7 +332,7 @@
                 async updateSubject() {
                     const id = this.editSubjectData.id;
                     try {
-                        const response = await fetch(`${apiBaseUrl}/api/admin/subjects/${id}`, {
+                        const response = await fetch(`${apiBaseUrl}/admin/subjects/${id}`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -378,7 +378,7 @@
                     }).then(async (result) => {
                         if (result.isConfirmed) {
                             try {
-                                const response = await fetch(`${apiBaseUrl}/api/admin/subjects/${id}`, {
+                                const response = await fetch(`${apiBaseUrl}/admin/subjects/${id}`, {
                                     method: 'DELETE',
                                     headers: {
                                         'Accept': 'application/json',

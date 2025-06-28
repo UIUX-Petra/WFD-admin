@@ -10,12 +10,12 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
-Route::get('/admin/auth', [AuthController::class, 'googleAuth'])->name('admin.auth');
+Route::get('/', [AuthController::class, 'showLoginForm'])->name('admin.login');
+Route::get('/auth', [AuthController::class, 'googleAuth'])->name('admin.auth');
 Route::get('/process/login', [AuthController::class, 'processLogin'])->name('processLogin');
 
 
-Route::middleware(['admin.auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['admin.auth'])->name('admin.')->group(function () {
    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
