@@ -1,4 +1,4 @@
-<header class="flex items-center justify-between px-6 py-4 bg-white shadow-sm border-b border-gray-200">
+<header class="flex items-center justify-between px-6 py-4 bg-[#eaf3f8] shadow-sm border-b border-gray-300 text-gray-800">
     <!-- Sidebar Toggle (Mobile) -->
     <button @click="sidebarOpen = !sidebarOpen"
         class="text-gray-600 md:hidden focus:outline-none hover:text-blue-600 transition">
@@ -13,7 +13,8 @@
     <!-- User Menu -->
     <div x-data="{ dropdownOpen: false }" class="relative">
         <button @click="dropdownOpen = !dropdownOpen"
-            class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 transition focus:outline-none">
+            class="flex items-center gap-3 px-3 py-2 rounded-md transition focus:outline-none hover:bg-[#d0e2f0]">
+            
             <img src="https://ui-avatars.com/api/?name={{ urlencode(session('name') ?? 'Admin') }}&background=random"
                 alt="Avatar" class="h-9 w-9 rounded-full object-cover shadow">
 
@@ -22,22 +23,38 @@
                 <span class="text-gray-500 text-xs">Admin</span>
             </div>
             <i class="ri-arrow-down-s-line hidden md:inline-block text-gray-600 text-lg"></i>
+
         </button>
 
         <!-- Dropdown Menu -->
         <div x-show="dropdownOpen" @click.away="dropdownOpen = false"
             x-transition:enter="transition ease-out duration-100"
             x-transition:enter-start="transform opacity-0 scale-95"
-            x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
+            x-transition:enter-end="transform opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-75"
             x-transition:leave-start="transform opacity-100 scale-100"
             x-transition:leave-end="transform opacity-0 scale-95"
-            class="absolute right-0 z-50 mt-2 w-48 bg-white rounded-lg shadow-md overflow-hidden ring-1 ring-gray-100"
+            class="absolute right-0 z-50 mt-2 w-48 bg-[#eaf3f8] rounded-lg shadow-md overflow-hidden ring-1 ring-gray-300"
             x-cloak>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profil (Coming Soon)</a>
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700">
-                Logout
-            </a>
+
+        <!-- Profil (Coming Soon) -->
+        <a href="#"
+            class="block px-4 py-2 text-sm text-gray-800 transition"
+            style="background-color: transparent;"
+            onmouseover="this.style.backgroundColor='#aac4e2'; this.style.color='#1f2937';"
+            onmouseout="this.style.backgroundColor='transparent'; this.style.color='#374151';">
+            Profil (Coming Soon)
+        </a>
+
+        <!-- Logout -->
+            <a href="#"
+            onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+            class="block px-4 py-2 text-sm text-red-500 hover:bg-red-100 hover:text-red-700 transition">
+            Logout
+        </a>
+
+
+
         </div>
     </div>
 </header>

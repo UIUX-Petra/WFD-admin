@@ -4,7 +4,9 @@
 
 @section('content')
 <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-semibold text-gray-800">Announcement Management</h1>
+    <h1 class="text-4xl font-black font-gotham text-transparent bg-clip-text bg-gradient-to-r from-[#5BE6B0] to-[#20BDA9]">
+        Announcement Management
+    </h1>
     <a href="{{ route('admin.announcements.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow">
         <i class="ri-add-line mr-1"></i> Add New Announcement
     </a>
@@ -21,8 +23,8 @@
     </div>
 @endif
 
-<div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
+<div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto border" style="border: 2px solid #b0e0e4;">
+     <table class="min-w-full border divide-y" style="border-color: #b0e0e4; --tw-divide-opacity: 1;">
         <thead class="bg-gray-50">
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>

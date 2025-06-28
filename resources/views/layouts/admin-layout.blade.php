@@ -7,6 +7,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Admin Panel - @yield('title', 'Dashboard')</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/fonts.css') }}">
+
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
@@ -41,14 +45,17 @@
     @yield('style')
 </head>
 
-<body class="bg-gray-100 font-sans antialiased">
-   <div x-data="{ sidebarOpen: true, sidebarExpanded: true }" class="flex h-screen bg-gray-200">
+<body class="min-h-screen antialiased bg-gradient-to-b from-[#eaf3f8] to-[#cbeaef]" style="font-family: 'Gotham', sans-serif;">
+
+   <!-- <div x-data="{ sidebarOpen: true, sidebarExpanded: true }" class="flex h-screen bg-gray-200"> -->
+    <div x-data="{ sidebarOpen: true, sidebarExpanded: true }" class="flex h-screen">
         @include('partials._sidebar')
 
         <div class="flex-1 flex flex-col overflow-hidden">
             @include('partials._header')
 
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <!-- <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6"> -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-transparent p-6">    
                 <div class="container mx-auto">
                     @yield('content')
                 </div>

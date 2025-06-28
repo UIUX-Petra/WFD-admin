@@ -3,15 +3,18 @@
 @section('title', 'User Data')
 
 @section('content')
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-semibold text-gray-800">User Registration Data</h1>
+    <div class="flex justify-between items-center mb-3">
+        <h1 class="text-4xl font-black font-gotham text-transparent bg-clip-text bg-gradient-to-r from-[#5BE6B0] to-[#20BDA9]">
+        User Registration Data
+        </h1>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+    <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto border" style="border: 2px solid #b0e0e4;">
         <div class="mb-4 flex justify-between items-center">
             <div class="relative w-full sm:max-w-xs mb-2 sm:mb-0">
                 <input type="text" id="search-input" {{-- 1. Beri ID pada input search --}}
-                    class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    class="pl-10 pr-4 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-[#b0e0e4] focus:border-transparent"
+                    style="border-color: #b0e0e4;"
                     placeholder="Search ID, username, email..." value="{{ $search ?? '' }}">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                     <i class="ri-search-line text-gray-400"></i>
@@ -27,7 +30,7 @@
             </div>
         </div>
 
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="min-w-full border divide-y" style="border-color: #b0e0e4; --tw-divide-opacity: 1;">
             <thead class="bg-gray-50">
                 <tr>
                     <th scope="col"

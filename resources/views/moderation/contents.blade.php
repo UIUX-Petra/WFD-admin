@@ -4,7 +4,11 @@
 
 @section('content')
     <div x-data="reportManager('{{ session('token') }}', '{{ $initialType ?? 'question' }}')" x-init="init()">
-        <h1 class="text-3xl font-semibold text-gray-800 mb-6">Review Content Reports</h1>
+        <div class="flex justify-between items-center mb-2">
+            <h1 class="text-4xl font-black font-gotham text-transparent bg-clip-text bg-gradient-to-r from-[#5BE6B0] to-[#20BDA9]">
+                 Review Content Reports
+            </h1>
+        </div>
 
         {{-- Tab nav --}}
         <div class="mb-6 border-b border-gray-200">
@@ -27,7 +31,7 @@
             </nav>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto border" style="border: 2px solid #b0e0e4;">
             <div class="md:flex md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                 <h2 class="text-xl font-semibold text-gray-700"
                     x-text="`${activeType.charAt(0).toUpperCase() + activeType.slice(1)} Reports List`"></h2>
@@ -85,7 +89,7 @@
 
             {{-- Table --}}
             <div class="overflow-x-auto" x-show="!isLoading">
-                <table class="min-w-full divide-y divide-gray-200">
+                <table class="min-w-full border divide-y" style="border-color: #b0e0e4; --tw-divide-opacity: 1;">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

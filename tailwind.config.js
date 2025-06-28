@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 module.exports = {
   content: [
     "./resources/**/*.blade.php",
@@ -6,8 +6,12 @@ module.exports = {
     "./resources/**/*.vue",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        gotham: ['Gotham', 'sans-serif'], // <- ini barunya
+      },
+    },
   },
-  darkMode: 'class', // <--- penting untuk dark mode manual
+  darkMode: 'class',
   plugins: [],
 }

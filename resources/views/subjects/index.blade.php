@@ -5,19 +5,22 @@
 @section('content')
     <div x-data="subjectManager('{{ session('token') }}')" x-init="init()">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-semibold text-gray-800">Subjects Management</h1>
+            <h1 class="text-4xl font-black font-gotham text-transparent bg-clip-text bg-gradient-to-r from-[#5BE6B0] to-[#20BDA9]">
+                 Subjects Management
+            </h1>
             <button @click="openAddModal()"
                 class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow flex items-center">
                 <i class="ri-add-line mr-1"></i> Add New Subject
             </button>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto border" style="border: 2px solid #b0e0e4;">
             {{-- Search --}}
             <div class="mb-4">
                 <input type="text" x-model.debounce.500ms="search"
-                    placeholder="Cari berdasarkan nama, singkatan, atau deskripsi..."
-                    class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    placeholder="Search by name, abbreviation, or description..."
+                    class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style="border-color: #b0e0e4;">
             </div>
 
             {{-- spinner buat loading --}}
@@ -35,7 +38,7 @@
 
             {{-- tabel data --}}
             <div class="overflow-x-auto" x-show="!isLoading">
-                <table class="min-w-full divide-y divide-gray-200">
+               <table class="min-w-full border divide-y" style="border-color: #b0e0e4; --tw-divide-opacity: 1;">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name
@@ -92,33 +95,36 @@
                     <span x-text="pagination.total || 0"></span> results
                 </div>
 
-                <nav x-show="pagination.last_page > 1" class="inline-flex rounded-md shadow-sm -space-x-px"
-                    aria-label="Pagination">
-                    <button @click="fetchSubjects(pagination.current_page - 1)" :disabled="pagination.current_page <= 1"
-                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span class="sr-only">Previous</span>
-                        &lt;
-                    </button>
+                <nav x-show="pagination.last_page > 1">
+                    <ul class="inline-flex items-center -space-x-px text-sm">
+                        <li>
+                            <button @click="fetchSubjects(pagination.current_page - 1)" :disabled="pagination.current_page <= 1"
+                                class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-[#b0e0e4] rounded-l-lg hover:bg-[#e0f7f9] hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Prev
+                            </button>
+                        </li>
 
-                    <template x-for="page in Array.from({length: pagination.last_page}, (_, i) => i + 1)"
-                        :key="page">
-                        <button @click="fetchSubjects(page)"
-                            :class="{
-                                'z-10 bg-blue-50 border-blue-500 text-blue-600': page == pagination.current_page,
-                                'bg-white border-gray-300 text-gray-500 hover:bg-gray-50': page != pagination
-                                    .current_page
-                            }"
-                            class="relative inline-flex items-center px-4 py-2 border text-sm font-medium" x-text="page">
-                        </button>
-                    </template>
+                        <template x-for="page in Array.from({ length: pagination.last_page }, (_, i) => i + 1)" :key="page">
+                            <li>
+                                <button @click="fetchSubjects(page)"
+                                    :class="page === pagination.current_page
+                                        ? 'px-3 py-2 text-[#2e304f] border border-[#b0e0e4] bg-[#e0f7f9] font-semibold'
+                                        : 'px-3 py-2 text-gray-500 bg-white border border-[#b0e0e4] hover:bg-[#f0fafa] hover:text-gray-700'"
+                                    class="leading-tight rounded-none">
+                                    <span x-text="page"></span>
+                                </button>
+                            </li>
+                        </template>
 
-                    <button @click="fetchSubjects(pagination.current_page + 1)"
-                        :disabled="pagination.current_page >= pagination.last_page"
-                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span class="sr-only">Next</span>
-                        &gt;
-                    </button>
+                        <li>
+                            <button @click="fetchSubjects(pagination.current_page + 1)" :disabled="pagination.current_page >= pagination.last_page"
+                                class="px-3 py-2 leading-tight text-gray-500 bg-white border border-[#b0e0e4] rounded-r-lg hover:bg-[#e0f7f9] hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Next
+                            </button>
+                        </li>
+                    </ul>
                 </nav>
+
             </div>
         </div>
 
