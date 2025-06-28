@@ -6,12 +6,16 @@
 </style>
 
 <aside x-show="sidebarOpen" @click.away="if (window.innerWidth < 768) sidebarOpen = false" 
-    x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="-translate-x-full"
-    x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in-out duration-300"
-    x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
+    x-transition:enter="transition ease-in-out duration-300"
+    x-transition:enter-start="-translate-x-full"
+    x-transition:enter-end="translate-x-0"
+    x-transition:leave="transition ease-in-out duration-300"
+    x-transition:leave-start="translate-x-0"
+    x-transition:leave-end="-translate-x-full"
     :class="sidebarExpanded ? 'w-64' : 'w-20'"
-    class="fixed inset-y-0 left-0 z-30 bg-[#2e304f] text-gray-100 p-4 transform md:relative md:translate-x-0 transition-all duration-300 ease-in-out overflow-y-auto"
+    class="fixed inset-y-0 left-0 z-30 bg-[#2e304f] text-gray-100 p-4 border-r-[3px] border-r border-[#ddab41] transform md:relative md:translate-x-0 transition-all duration-300 ease-in-out overflow-y-auto"
     x-cloak>
+
 
     <a href="{{ route('admin.dashboard.main') }}"
         class="flex items-center space-x-2 py-2.5 px-4 mb-2">

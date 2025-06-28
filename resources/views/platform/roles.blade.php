@@ -26,6 +26,7 @@
         border-radius: 4px;
         margin-left: 4px;
     }
+
 </style>
 @endpush
 
@@ -51,7 +52,9 @@
 
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-semibold">Role Management</h1>
+        <h1 class="text-4xl font-black font-gotham text-transparent bg-clip-text bg-gradient-to-r from-[#5BE6B0] to-[#20BDA9]">
+                 Role Management
+        </h1>
         <button @click="openAddModal" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center">
             <i class="ri-add-line mr-2"></i> Add New Role
         </button>

@@ -29,12 +29,37 @@
     
     {{-- Header n filter --}}
     <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
-        <h1 class="text-3xl font-bold text-gray-800">Main Dashboard</h1>
-        <div class="flex items-center bg-gray-100 rounded-lg p-1 space-x-1 border border-gray-200">
-            <button @click="changePeriod('week')" :class="{ 'active': selectedPeriod === 'week' }" class="filter-button px-4 py-1.5 text-sm rounded-md text-gray-700 hover:bg-gray-200">This Week</button>
-            <button @click="changePeriod('month')" :class="{ 'active': selectedPeriod === 'month' }" class="filter-button px-4 py-1.5 text-sm rounded-md text-gray-700 hover:bg-gray-200">This Month</button>
-            <button @click="changePeriod('year')" :class="{ 'active': selectedPeriod === 'year' }" class="filter-button px-4 py-1.5 text-sm rounded-md text-gray-700 hover:bg-gray-200">This Year</button>
+        <div class="flex justify-between items-center mb-1">
+            <h1 class="text-4xl font-black font-gotham text-transparent bg-clip-text bg-gradient-to-r from-[#5BE6B0] to-[#20BDA9]">
+            Main Dashboard
+            </h1>
         </div>
+        <div class="flex items-center bg-gray-100 rounded-lg p-1 space-x-1 border border-[#b0e0e4]">
+                <button 
+                    @click="changePeriod('week')" 
+                    :class="[
+                        'filter-button px-4 py-1.5 text-sm rounded-md transition-colors duration-200',
+                        selectedPeriod === 'week' ? 'bg-[#b0e0e4] text-[#2e304f] font-semibold' : 'text-gray-700 hover:bg-[#b0e0e4]'
+                    ]"
+                >This Week</button>
+
+                <button 
+                    @click="changePeriod('month')" 
+                    :class="[
+                        'filter-button px-4 py-1.5 text-sm rounded-md transition-colors duration-200',
+                        selectedPeriod === 'month' ? 'bg-[#b0e0e4] text-[#2e304f] font-semibold' : 'text-gray-700 hover:bg-[#b0e0e4]'
+                    ]"
+                >This Month</button>
+
+                <button 
+                    @click="changePeriod('year')" 
+                    :class="[
+                        'filter-button px-4 py-1.5 text-sm rounded-md transition-colors duration-200',
+                        selectedPeriod === 'year' ? 'bg-[#b0e0e4] text-[#2e304f] font-semibold' : 'text-gray-700 hover:bg-[#b0e0e4]'
+                    ]"
+                >This Year</button>
+        </div>
+
     </div>
 
     <div x-show="isLoading" x-transition class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 rounded-lg">
