@@ -5,8 +5,9 @@
 @section('content')
     <div x-data="reportManager('{{ session('token') }}', '{{ $initialType ?? 'question' }}')" x-init="init()">
         <div class="flex justify-between items-center mb-2">
-            <h1 class="text-4xl font-black font-gotham text-transparent bg-clip-text bg-gradient-to-r from-[#5BE6B0] to-[#20BDA9]">
-                 Review Content Reports
+            <h1
+                class="text-4xl font-black font-gotham text-transparent bg-clip-text bg-gradient-to-r from-[#5BE6B0] to-[#20BDA9]">
+                Review Content Reports
             </h1>
         </div>
 
@@ -140,8 +141,7 @@
                                     </template>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                    <a :href="report.reporter.url" target="_blank" class="text-blue-600 hover:underline"
-                                        x-text="report.reporter.name"></a>
+                                    <span x-text="report.reporter.name"></span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize"
@@ -187,11 +187,15 @@
                         </li>
                         <template x-for="link in getPaginationLinks()" :key="link.label + Math.random()">
                             <li><button @click="link.url ? fetchReports(link.page) : null"
-                                    :class="{ 'px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700':
+                                    :class="{
+                                        'px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700':
                                             !link.active && link
-                                            .url, 'px-3 py-2 text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700': link
-                                            .active, 'px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 cursor-default':
-                                            !link.url }"
+                                            .url,
+                                        'px-3 py-2 text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700': link
+                                            .active,
+                                        'px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 cursor-default':
+                                            !link.url
+                                    }"
                                     x-text="link.label"></button></li>
                         </template>
                         <li><button @click="fetchReports(pagination.current_page + 1)"
@@ -283,7 +287,8 @@
                                                 :class="{ 'border-green-400 bg-green-50': item.verified }">
                                                 <div x-show="item.verified"
                                                     class="inline-flex items-center bg-green-200 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded-full mb-2">
-                                                    <i class="ri-check-double-line mr-1"></i> Verified Answer</div>
+                                                    <i class="ri-check-double-line mr-1"></i> Verified Answer
+                                                </div>
                                                 <p x-html="item.answer"></p>
                                                 <div class="text-xs text-gray-500 mt-3">Answered by: <span
                                                         class="font-medium" x-text="item.user.username"></span> - <span
@@ -311,7 +316,8 @@
                                 <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
                                     <p class="text-gray-700 leading-relaxed" x-html="detailedContent.answer"></p>
                                     <div class="mt-3 text-xs text-gray-500" x-show="detailedContent.user">Answered by:
-                                        <span class="font-medium" x-text="detailedContent.user.username"></span></div>
+                                        <span class="font-medium" x-text="detailedContent.user.username"></span>
+                                    </div>
                                 </div>
 
                                 {{-- Daftar Komentar dari Jawaban --}}
@@ -335,7 +341,8 @@
                             <div class="space-y-4">
                                 <div class="mb-4" x-if="detailedContent.commentable">
                                     <h5 class="text-md font-semibold text-gray-600">
-                                        Comment on <span class="capitalize" x-text="detailedContent.commentable_type.toLowerCase()"></span>
+                                        Comment on <span class="capitalize"
+                                            x-text="detailedContent.commentable_type.toLowerCase()"></span>
                                     </h5>
                                     <p class="mt-1 p-2 bg-gray-100 border-l-4 border-gray-300 text-sm text-gray-700 rounded italic"
                                         x-text="detailedContent.commentable.title || (detailedContent.commentable.answer ? detailedContent.commentable.answer.substring(0, 100) + '...' : '[Content Deleted]')">
@@ -348,7 +355,8 @@
                                                 x-text="detailedContent.report || 0"></span> Reports</span>
                                     </div>
                                     <div class="mt-3 text-xs text-gray-500" x-show="detailedContent.user">Comment by:
-                                        <span class="font-medium" x-text="detailedContent.user.username"></span></div>
+                                        <span class="font-medium" x-text="detailedContent.user.username"></span>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -473,7 +481,7 @@
 
                         const result = await response.json();
                         this.detailedContent = result.data ||
-                        result; 
+                            result;
                     } catch (error) {
                         console.error('Error fetching full content:', error);
                         this.showToast('error', error.message);
