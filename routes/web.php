@@ -5,6 +5,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ModerationController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,9 @@ Route::middleware(['admin.auth'])->name('admin.')->group(function () {
       Route::get('moderation/dashboard', [DashboardController::class, 'showReportDashboard'])->name('moderation.dashboard');
       Route::get('dashboard/report-data', [DashboardController::class, 'getReportDataProxy'])->name('dashboard.report-data.proxy');
       Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
+
+      Route::get('/questions/index', [QuestionController::class, 'index'])->name('questions.index');
+
    });
    Route::middleware('role:moderator,super-admin')->group(function () {
       Route::resource('announcements', AnnouncementController::class);
@@ -40,7 +44,7 @@ Route::middleware(['admin.auth'])->name('admin.')->group(function () {
    Route::middleware('role:comunity-manager,super-admin')->group(function () {
       Route::get('/moderation/reports', [ModerationController::class, 'index'])->name('moderation.reports');
    });
-   
+
    Route::middleware('role:super-admin')->group(function () {
       Route::get('/role', [RoleController::class, 'index'])->name('platform.roles');
    });

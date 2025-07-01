@@ -74,6 +74,12 @@
                     <i class="ri-book-3-line text-xl"></i>
                     <span x-show="sidebarExpanded">Subjects Management</span>
                 </a>
+                 <a href="{{ route('admin.questions.index') }}"
+                    class="flex items-center space-x-2 py-2.5 px-4 rounded transition duration-200 sidebar-link
+                    {{ request()->routeIs('admin.questions.index') ? 'bg-gray-700 text-[#ddab41] font-semibold border-l-4 border-blue-500' : 'text-gray-300 hover:bg-gray-700 hover:text-[#ddab41] border-l-4 border-transparent' }}">
+                    <i class="ri-book-3-line text-xl"></i>
+                    <span x-show="sidebarExpanded">Questios Management</span>
+                </a>
             </div>
         @endhasrole
 
